@@ -322,5 +322,52 @@ Mở [prototype/index.html](prototype/index.html), mở **Nhật ký mô phỏng
 
 **Kết luận nghiệm thu:** đạt yêu cầu demo đối với hai ca #5 và #7 trong phạm vi mô phỏng. Chưa đủ căn cứ phát hành cho hành khách thật; cần xử lý lỗi trạng thái nêu trên và kiểm chứng tích hợp trước bước đó.
 
-## §7. Demo
-*(Đang thực hiện)*
+## §7. Demo (Chặng 7)
+
+### 1. Kịch bản phân vai 4 phút cho 3 thành viên
+
+```
+┌────────────────────────────────────────────────────────────────────────┐
+│                        KỊCH BẢN PHÂN VAI DEMO                          │
+├──────────────────────┬────────────────────┬────────────────────────────┤
+│ Người trình bày      │ Thời lượng         │ Nội dung chính             │
+├──────────────────────┼────────────────────┼────────────────────────────┤
+│ 1. Nguyễn Trọng Hưởng│ 0:00 - 1:00 (60s)  │ Giới thiệu lát cắt, 3 việc │
+│                      │                    │ KHÔNG làm, và ma trận      │
+│                      │                    │ mức tự chủ (Cost-of-Error) │
+│ 2. Trần Minh Tân     │ 1:00 - 2:30 (90s)  │ Thao tác trực tiếp live    │
+│                      │                    │ Prototype trên ca khó BM217│
+│                      │                    │ Chỉ rõ các điểm HAX/PAIR   │
+│ 3. Phạm Ngọc Minh Quân│ 2:30 - 3:30 (60s)  │ Phân tích 2 ca đắt nhất,   │
+│                      │                    │ lỗi ngữ cảnh & thiết kế    │
+│                      │                    │ cứu lỗi không đảo được     │
+│ Cả nhóm              │ 3:30 - 4:00+ (30s+)│ Ứng biến ca lạ từ Giảng    │
+│                      │                    │ viên / TA                  │
+└──────────────────────┴────────────────────┴────────────────────────────┘
+```
+
+- **Phần 1 — Nguyễn Trọng Hưởng (0:00 – 1:00): Bối cảnh, Lát cắt & Triết lý Mức tự chủ**
+  - "Kính chào Thầy cô và các bạn, em là Trọng Hưởng, đại diện nhóm **Ba Chàng Lính Ngự Lâm** giải quyết bài toán trợ lý đổi chuyến bay cho Traveloka khi chuyến bay BM 213 bị huỷ do bão. Lát cắt sản phẩm của nhóm em là: *AI hỗ trợ đề xuất, giữ chỗ, hỏi lại, đổi vé hoặc chuyển nhân viên cho hành khách đi cùng con nhỏ, để khách về nhà an toàn mà không mất vé hay tiền vì một thao tác sai lầm*."
+  - "Trước khi triển khai, nhóm em xác định **3 việc AI tuyệt đối KHÔNG LÀM**: Không đổi tên người bay, Không hứa bồi thường tiền mặt do bão, và Không tách trẻ em dưới 12 tuổi bay một mình. Triết lý mức tự chủ của nhóm dựa trên **Cost-of-Error**: Việc đảo được như giữ chỗ tạm 20 phút thì AI tự làm ngay để cứu kho vé; việc một đi không trở lại như đổi vé hay hoàn tiền thì bắt buộc người duyệt."
+- **Phần 2 — Trần Minh Tân (1:00 – 2:30): Thao tác Prototype trên ca khó**
+  - "Sau đây em xin demo trực tiếp ca khó nhất của nhóm trên Prototype: Khách nhắn đòi đổi gấp chuyến 21h tối nay BM 217. Chuyến này chỉ còn 1 chỗ trong khi khách có con nhỏ 5 tuổi đi cùng.
+    1. Điểm số **[1] HAX G10**: AI không đổi liều, hiện cảnh báo thiếu chỗ cho bé 5 tuổi.
+    2. Điểm số **[2] HAX G11**: Trích xuất minh bạch căn cứ PNR `TRV-7Q2K` và Điều 6 Luật bay.
+    3. Điểm số **[3] PAIR Auto-Hold**: AI tự động giữ 2 chỗ chuyến sáng mai BM 201 trong 20 phút với đồng hồ đếm ngược đang chạy thật.
+    4. Điểm số **[4] Level 2**: Thẻ xác nhận đổi vé 1-chạm chi phí 0đ.
+    5. Điểm số **[5] PAIR Fallback**: Lối thoát gặp nhân viên sân bay kèm chuyển giao trọn gói hồ sơ.
+    6. Điểm số **[6] Friction Modal**: Modal hoàn vé 2 bước bắt buộc tick checkbox mới mở nút đỏ, ngăn chặn việc mất vé vĩnh viễn."
+- **Phần 3 — Phạm Ngọc Minh Quân (2:30 – 3:30): Lập luận UX khi AI sai & Lỗi ngữ cảnh**
+  - "Bản chất lỗi ở ca này là **Context Error (Lỗi ngữ cảnh)**: AI hiểu đúng câu chữ của khách nhưng sai với bối cảnh thực tế. Sửa câu chữ không bao giờ cứu được việc gửi nhầm yêu cầu hoàn vé hay đổi nhầm chuyến, vì lệnh đã bắn vào API hãng hàng không là vé cũ bị xoá trên hệ thống phân phối toàn cầu. Thiết kế của nhóm cứu bằng cấu trúc: Tách tool soạn nháp khỏi tool gửi thật, đưa ma sát Checkbox Gate vào bước nguy hiểm, và dùng cơ chế Auto-hold 20 phút làm tấm đệm bảo vệ."
+
+---
+
+### 2. Phương án ứng phó Ca Lạ tại chỗ (Surprise Test Cases)
+- **Ca lạ 1: TA hỏi: *"Nếu khách nhắn tin bằng tiếng Anh hoặc dùng tiếng lóng giận dữ: 'F***, cancel everything and give my money back immediately!' thì sao?"***
+  - *Ứng biến của nhóm:* Prototype nhận diện Intent hoàn vé (`gui_yeu_cau_hoan_ve`) bất kể cảm xúc người dùng. AI giữ thái độ chuyên nghiệp, không tranh cãi, không tự hoàn vé trong chat, mà mở ngay Modal 2 bước (điểm **[6]**) với đầy đủ cảnh báo về thời gian 90 ngày và mất quyền bay. Dù khách giận đến đâu, khách vẫn phải tick cam kết thì nút hoàn tiền mới bấm được.
+- **Ca lạ 2: TA hỏi: *"Trong lúc đang giữ chỗ 20 phút, chuyến bay BM 201 đột ngột bị hãng huỷ nốt thì sao?"***
+  - *Ứng biến của nhóm:* Hệ thống lắng nghe Webhook trạng thái chuyến bay. Đồng hồ giữ chỗ lập tức chuyển sang trạng thái cảnh báo màu đỏ: `Chuyến bay dự phòng vừa bị ảnh hưởng do bão`. AI tự động truy vấn chuyến tiếp theo (BM 205 09:30 còn 4 chỗ), giữ chỗ chuyến mới và hiển thị tuỳ chọn ưu tiên: "Nối máy khẩn cấp với nhân viên điều hành bay".
+- **Ca lạ 3: TA hỏi: *"Chỉ cho tôi chỗ nào trên màn hình là HAX G10?"***
+  - *Ứng biến của nhóm:* Thành viên Tân trỏ ngay vào điểm **[1]** trên màn hình prototype: Thẻ cảnh báo thu hẹp phạm vi — AI nhận diện thông tin chưa đủ an toàn (thiếu chỗ cho trẻ em) nên không kích hoạt tool đổi vé, mà thu hẹp thành hành động giữ chỗ dự phòng an toàn.
+- **Ca lạ 4: TA hỏi: *"Tại sao không cho AI tự hoàn tiền luôn cho tiện mà bắt khách tick checkbox phiền phức?"***
+  - *Ứng biến của nhóm:* "Dạ thưa Thầy, theo quy định Traveloka, hoàn tiền là thao tác **không thể đảo ngược 100%**. Gửi rồi là mất vé, tiền om tới 90 ngày. Khách nhắn 'hoàn tiền' đa phần do bực bội nhất thời vì huỷ chuyến; nếu AI tự làm ngay thì 5 phút sau khách bình tĩnh lại sẽ không còn chuyến nào để bay về nhà. Ma sát Checkbox Gate này là để bảo vệ lợi ích tối thượng của khách hàng!"
