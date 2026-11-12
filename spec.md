@@ -174,7 +174,73 @@ Nhóm không chia đều các nhãn mức hại (trong 15 ca có tới 13 ca g�
 4. **Correction / Ngăn lỗi ngữ cảnh (#7, #12, #13):** Khách đòi *"huỷ hết"* trong lúc bực tức → Gặp Checkbox Gate chặn kịp thời; nếu đã xảy ra sự cố hậu kiểm (#12, #13) → khoá mọi thao tác tự động tiếp theo và bàn giao ngay cho CSKH.
 
 ## §4. Mức tự chủ (Chặng 4)
-*(Đang thực hiện)*
+
+### 1. Phân loại mức tự chủ cho từng công cụ theo Cost-of-Error
+
+| Công cụ | Mức tự chủ | Cơ chế kiểm soát nếu cần duyệt | Lý do theo Cost-of-Error (Sai ai chịu · Đảo được không · Chờ mất gì) | Phương án đã cân nhắc & Vì sao loại |
+|---|:---:|---|---|---|
+| `tra_cuu_dat_cho` | **TỰ LÀM** | AI tự động kích hoạt ngay khi nhận câu hỏi của khách. | • **Sai ai chịu:** Không ai chịu thiệt hại vật chất vì đây là lệnh chỉ đọc (Read-only), không làm thay đổi trạng thái PNR, kho vé hay tài chính.<br>• **Đảo được không:** Đảo được 100% (chỉ cần truy vấn lại).<br>• **Chờ người thì mất gì:** Mất tính tức thời. Khách hàng đang ở sân bay hoang mang, nếu việc đọc PNR và tìm chuyến trống cũng phải chờ duyệt thì trợ lý AI hoàn toàn mất giá trị phục vụ. | *Cần người duyệt:* Loại vì gây nghẽn cổ chai vô lý cho một thao tác đọc không có rủi ro thay đổi dữ liệu. |
+| `giu_cho_chuyen_moi` | **TỰ LÀM** | AI tự động gọi giữ chỗ tạm thời trong 20 phút khi khách chọn chuyến cụ thể hoặc khi cần tạo phương án dự phòng an toàn. | • **Sai ai chịu:** Nếu giữ nhầm chuyến, chi phí sai sót thực tế bằng 0: hết 20 phút không xác nhận thì hệ thống tự động nhả chỗ về kho vé chung, không phát sinh bất kỳ khoản phí nào, vé cũ bị huỷ vẫn được giữ nguyên.<br>• **Đảo được không:** Đảo được 100% (tự động nhả sau 20 phút hoặc khách bấm nút huỷ giữ chỗ).<br>• **Chờ người thì mất gì:** **MẤT CHUYẾN BAY THAY THẾ!** Trong bối cảnh bão huỷ chuyến hàng loạt, hàng trăm hành khách cùng lúc vào app tìm vé. Chuyến BM 201 chỉ còn 9 chỗ; nếu bắt nhân viên hoặc khách duyệt mới được giữ chỗ, thì trong 2–3 phút chờ đợi đó, toàn bộ 9 chỗ này sẽ bị người khác quét sạch. Do đó, **cái giá của việc chờ người duyệt đắt hơn gấp nhiều lần việc AI giữ nhầm chỗ tạm thời**. | *Cần người duyệt:* Loại vì độ trễ phê duyệt sẽ tước đoạt cơ hội giữ được vé thay thế quý giá của hành khách. |
+| `doi_chuyen_bay` | **CẦN KHÁCH DUYỆT** *(Level 2)* | • **Ai duyệt:** Khách hàng trực tiếp bấm nút xác nhận 1-chạm.<br>• **Người duyệt thấy gì:** Thẻ tóm tắt xác nhận gồm: Chuyến cũ → Chuyến mới, giờ bay, tên 2 hành khách (Nguyễn Minh An & bé Gia Bình 5t), số tiền chênh lệch (0đ), và cảnh báo: *"Dùng lần đổi miễn phí duy nhất trong 48h"*, kèm đồng hồ đếm ngược giữ chỗ 20 phút.<br>• **Quá hạn:** Hết 20 phút không bấm duyệt, chỗ giữ tự nhả ra kho vé, vé cũ giữ nguyên diện huỷ do bão để khách chọn lại. | • **Sai ai chịu:** Hành khách chịu thiệt hại nghiêm trọng. Theo chính sách hãng Bay Mẫu, khách chỉ có **duy nhất 1 lần đổi miễn phí trong 48h**. Khi lệnh này chạy, vé cũ bị huỷ vĩnh viễn trên hệ thống GDS và vé mới được xuất. Nếu đổi sai giờ hoặc đổi thiếu người, khách mất quyền đổi 0đ, muốn đổi lại phải đóng phí đổi và chênh lệch vé rất đắt, đồng thời chuyến cũ không thể khôi phục.<br>• **Đảo được không:** Cực khó đảo ngược.<br>• **Chờ người thì mất gì:** **Không mất gì cả**, vì đã có tool `giu_cho_chuyen_moi` bảo vệ giữ chỗ 20 phút phía trước. Khách hoàn toàn có đủ thời gian đọc kỹ thông tin và bấm duyệt 1-chạm an tâm. | • *Tự làm:* Loại vì nếu AI tự đổi theo phỏng đoán (như Kịch bản #5 tự đổi sang 07:00), khách sẽ mất vĩnh viễn quyền đổi miễn phí nếu con nhỏ không dậy kịp.<br>• *Chỉ gợi ý (Level 1):* Loại vì bắt khách tự mò 10 bước trong hoảng loạn là quá chậm và dễ thao tác sai. |
+| `gui_yeu_cau_hoan_ve` | **CẦN KHÁCH DUYỆT NGHIÊM NGẶT** *(Level 2 + Checkbox Gate)* | • **Ai duyệt:** Khách hàng trực tiếp duyệt qua Modal xác nhận 2 bước.<br>• **Người duyệt thấy gì:** 4 điều khoản rủi ro: yêu cầu gửi rồi không thể huỷ, mất toàn bộ chỗ bay thay thế, mất quyền đổi vé 0đ, tiền hoàn về thẻ mất 14–90 ngày.<br>• **Quá hạn:** Nếu khách tắt modal hoặc không tick checkbox, lệnh hoàn toàn không được kích hoạt. | • **Sai ai chịu:** Hành khách chịu tổn thất toàn bộ kế hoạch di chuyển và giam dòng tiền. Hướng dẫn công khai của Traveloka ghi rõ: *Gửi rồi thì không huỷ được yêu cầu*. Khách mất sạch chỗ bay và phải chờ tới 90 ngày mới nhận lại tiền.<br>• **Đảo được không:** **HOÀN TOÀN KHÔNG THỂ ĐẢO NGƯỢC**.<br>• **Chờ người thì mất gì:** Mất 5–10 giây đọc và tick xác nhận, nhưng bảo vệ người dùng khỏi quyết định bốc đồng nhất thời khi đang giận dữ vì chuyến bay bị huỷ. | *Tự làm:* **TUYỆT ĐỐI CẤM**. Không bao giờ được phép biến một câu chat văn bản tự do thành lệnh huỷ vé một chiều có tính phá huỷ tài chính. |
+| `chuyen_nhan_vien` | **TỰ LÀM** | AI tự động chuyển cuộc hội thoại cho nhân viên hỗ trợ khi phát hiện các tín hiệu ngoài phạm vi hoặc vi phạm an toàn. | • **Sai ai chịu:** Chỉ tốn một ít thời gian của tổng đài viên để chào và đóng ca nếu khách không có nhu cầu.<br>• **Đảo được không:** Đảo được 100% (khách quay lại tiếp tục chat với bot bất kỳ lúc nào).<br>• **Chờ người thì mất gì:** Chờ duyệt thì khách bị kẹt lại ở ngõ cụt khi AI không có thẩm quyền giải quyết (ví dụ ca trẻ em bay một mình, đổi tên người bay, tranh chấp bồi thường). | *Cần người duyệt:* Loại vì khi AI đã bất lực trước các rào cản pháp lý/nghiệp vụ, việc bắt khách duyệt mới được gặp nhân viên chỉ làm gia tăng sự bức xúc. |
+
+---
+
+### 2. Tool khó xếp nhất & Tranh luận nội bộ nhóm Ba Chàng Lính Ngự Lâm
+
+- **Tool khó xếp nhất:** `doi_chuyen_bay`.
+- **Vì sao mức nào cũng có giá (The Dilemma):**
+  - Đặt ở mức **Tự làm (Level 3)** thì giải quyết được tốc độ cho khách đang vội, nhưng trả giá bằng rủi ro tước đoạt quyền đổi vé miễn phí duy nhất của khách khi AI đoán sai.
+  - Đặt ở mức **Chỉ gợi ý (Level 1)** thì an toàn tuyệt đối cho hệ thống, nhưng trả giá bằng sự chậm trễ: khách hoảng loạn phải tự bấm qua 10 màn hình, trong lúc đó vé chuyến bay thay thế tốt nhất sẽ bị cướp mất.
+- **Tranh luận giữa 3 thành viên:**
+  - *Quan điểm của Minh Quân:* Đề xuất **Mức 3 (Tự làm + Cho phép hoàn tác trong 10 phút)**. Quân lập luận rằng khách hàng nhận tin huỷ chuyến lúc 15:00 đang rất hoảng loạn, nhiều người không rành thao tác công nghệ; AI nên tự động chọn chuyến sớm nhất còn chỗ và đổi luôn cho khách để bảo đảm có vé trước.
+  - *Quan điểm của Minh Tân:* Đề xuất **Mức 1 (Chỉ gợi ý, hướng dẫn khách tự vào tính năng Đổi lịch truyền thống)**. Tân lập luận rằng ngành hàng không cực kỳ khắt khe về mặt pháp lý; nếu AI tự ý đổi sang 07:00 mà khách có con nhỏ 5 tuổi không dậy kịp thì hậu quả khôn lường, tốt nhất AI chỉ đưa link để khách tự chịu trách nhiệm.
+  - *Quan điểm của Trọng Hưởng & Quyết định chốt của nhóm:* Trọng Hưởng đề xuất giải pháp dung hoà tối ưu: **Chốt Mức 2 (Cần khách duyệt 1-chạm) nhưng kết hợp song hành với việc cho AI TỰ LÀM `giu_cho_chuyen_moi` (Level 3)**.
+- **Căn cứ chốt theo cái giá khi sai (trỏ về kịch bản ở §2):**
+  - Nhóm bác bỏ đề xuất của Quân vì: Ở Kịch bản #5 ("đổi sang sáng mai nhé"), nếu AI tự đổi sang 07:00, cơ chế "hoàn tác 10 phút" trong ngành hàng không là bất khả thi. Vé cũ BM 213 vừa nhả ra GDS sẽ bị hệ thống quét sạch, PNR mới đã phát sinh; nếu hoàn tác thì vé cũ đã mất, vé mới cũng mất, khách rơi vào trạng thái không còn vé nào cả.
+  - Nhóm bác bỏ đề xuất của Tân vì: Ở Kịch bản #6, chuyến bay thay thế có số chỗ rất hữu hạn (BM 201 còn 9 chỗ, BM 205 còn 4 chỗ). Nếu bắt khách tự thao tác 10 bước, trong lúc khách dò dẫm thì 9 chỗ này sẽ biến mất.
+  - **Giải pháp của nhóm chốt:** AI tự động giữ chỗ 20 phút (an toàn, đảo được, không tốn gì) để "khoá chặt" nguy cơ hết vé, sau đó chìa ra đúng 1 nút bấm xác nhận duy nhất kèm tóm tắt chi phí 0đ. Khách chỉ cần bấm 1 click là hoàn tất, vừa bảo đảm tốc độ, vừa giữ trọn quyền kiểm soát của con người.
+
+---
+
+### 3. Thử nghiệm ma trận mức tự chủ trên 3 kịch bản
+
+#### ① Thử trên Kịch bản đắt #5 (Khách nói mơ hồ: *"Đổi giúp mình sang sáng mai nhé"*):
+- *Cái sai có bị chặn không?* **CÓ BỊ CHẶN**. Do `doi_chuyen_bay` thuộc Mức 2 và AI nhận diện thông tin giờ bay mơ hồ, AI không tự ý gọi lệnh đổi vé sang 07:00.
+- *Còn việc nào làm khi lẽ ra phải hỏi?* **KHÔNG**. AI dừng lại, hiển thị 2 thẻ lựa chọn rõ ràng (BM 201 07:00 và BM 205 09:30). Chỉ khi khách bấm chọn 1 chuyến cụ thể, AI mới giữ chỗ và hiển thị nút xác nhận đổi.
+- *Người dùng có phải chờ vô ích không?* **KHÔNG**. Khách thấy ngay 2 phương án cùng số chỗ còn lại, chỉ mất 1 chạm để chọn và 1 chạm để xác nhận.
+
+#### ② Thử trên Kịch bản đắt #7 (Khách nhắn bực tức: *"Huỷ hết đi, hoàn tiền cho mình"*):
+- *Cái sai có bị chặn không?* **CÓ BỊ CHẶN TUYỆT ĐỐI**. Tool `gui_yeu_cau_hoan_ve` thuộc Mức 2 kèm Checkbox Gate. Lệnh hoàn vé không bao giờ được kích hoạt từ câu chat văn bản.
+- *Còn việc nào làm khi lẽ ra phải hỏi?* **KHÔNG**. Hệ thống mở thẻ cảnh báo pháp lý và bắt buộc tick cam kết mới mở nút hoàn tiền.
+- *Người dùng có phải chờ vô ích không?* **KHÔNG**. Nếu khách thực sự kiên quyết hoàn vé, họ chỉ mất đúng 5 giây đọc cảnh báo và tick chọn. Nếu khách chỉ nói bộc phát, thiết kế này cứu khách khỏi việc mất sạch vé bay và kẹt tiền 90 ngày.
+
+#### ③ Thử trên Kịch bản bình thường (Khách nhắn rõ ràng: *"Đổi giúp mình sang chuyến sáng mai BM 201 lúc 07:00 nhé"*):
+- *Cái sai có bị chặn không?* Không có sai sót nào xảy ra.
+- *Còn việc nào làm khi lẽ ra phải hỏi?* Không hỏi thừa hay làm phiền khách, vì thông tin chuyến bay, giờ bay và hành khách đã hoàn toàn rõ ràng.
+- *Người dùng bình thường có phải chờ vô ích không?* **KHÔNG**. AI tự động gọi `giu_cho_chuyen_moi` ngay lập tức, hiển thị thẻ xác nhận 1-chạm: `[Xác nhận đổi sang BM 201 07:00 · 2 khách · 0đ]`. Khách bấm xác nhận là có vé mới trong vòng 10 giây.
+
+---
+
+### 4. Quy tắc tách bước công cụ & Chốt chặn ma sát (Architectural Guardrail)
+
+- **Đề xuất tách tool:** Nhóm kiến trúc tách quy trình hoàn tiền thành 2 công cụ độc lập:
+  1. `soan_yeu_cau_hoan_ve` (Mức: **Tự làm**): AI tự động tổng hợp mã PNR `TRV-7Q2K`, kiểm tra điều kiện huỷ chuyến do bão để xác định tỷ lệ hoàn 100%, tạo bản nháp yêu cầu hoàn tiền và hiển thị bảng tính số tiền sẽ hoàn về thẻ thanh toán gốc.
+  2. `gui_yeu_cau_hoan_ve` (Mức: **Cần người duyệt qua Checkbox Gate**): Chỉ được gọi khi người dùng trực tiếp tick checkbox cam kết trên giao diện và bấm nút xác nhận.
+- **Kịch bản được cứu nhờ tách tool:** Kịch bản #7. Nhờ tách tool, AI có thể tự động tính toán và giải thích cặn kẽ cho khách thấy họ sẽ nhận lại bao nhiêu tiền và mất bao lâu mà không sợ vô tình kích hoạt lệnh gửi huỷ vé thật lên hệ thống của hãng bay.
+
+---
+
+### 5. Thay đổi lời hứa với người dùng (Product Promise Shift)
+
+Cùng sử dụng một mô hình AI, nhưng việc thay đổi mức tự chủ làm thay đổi hoàn toàn cam kết thương hiệu và trải nghiệm sản phẩm:
+- **Lời hứa cũ (của mức tự chủ quá cao / Tự làm liều):**
+  > *"AI sẽ tự động thu xếp và giải quyết tất cả mọi việc thay bạn."*
+  > → **Hậu quả:** Lời hứa này tạo ra kỳ vọng ảo và tâm lý chủ quan cho người dùng. Khi AI tự ý suy đoán trên dữ liệu mơ hồ, cái giá phải trả là hành khách bị mất quyền lợi vé máy bay duy nhất mà không có cách nào cứu vãn.
+- **Lời hứa mới (Thiết kế của nhóm Ba Chàng Lính Ngự Lâm):**
+  > **"AI phản ứng tức thì để bảo vệ chỗ ngồi và quyền lợi cho bạn; bạn luôn là người cầm lái đưa ra quyết định cuối cùng."**
+  > → **Giá trị mang lại:** AI gánh vác phần việc chạy đua với thời gian (giữ chỗ 20 phút trước khi kho vé cạn kiệt), nhưng trả lại quyền định đoạt cho hành khách ở những ngã rẽ một chiều không thể đảo ngược. Khách hàng cảm thấy an tâm vì được bảo vệ chứ không cảm thấy bị AI tước đoạt quyền kiểm soát.
 
 ## §5. Prototype (Chặng 5)
 *(Đang thực hiện)*
