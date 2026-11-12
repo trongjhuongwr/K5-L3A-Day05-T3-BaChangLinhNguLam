@@ -1,0 +1,60 @@
+/* Presentation controls stay separate from the passenger's booking flow. */
+.demo-toolbar{margin:0 0 14px;background:#edf3ef;padding:17px 20px}
+.demo-toolbar summary{font-size:13px}
+.demo-toolbar summary .subtle{margin-left:10px}
+.scenario-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-top:14px}
+.scenario-card{display:flex;flex-direction:column;text-align:left;gap:5px;padding:12px 14px;border:1px solid #d9e3dc;background:#fff;border-radius:10px;color:#38594b;min-width:0;transition:border-color .15s,background .15s}
+.scenario-card:hover{border-color:#6da68e;background:#f9fcfa}
+.scenario-card.selected{background:#e1f0e6;border:2px solid #367d63;padding:11px 13px}
+.scenario-card>span{font-size:9px;font-weight:700;letter-spacing:.8px;color:#6f8878}
+.scenario-card.selected>span{color:#296e55}
+.scenario-card strong{font-size:12px;font-weight:650}
+.scenario-card small{font-size:10px;color:#74887b}
+.demo-toolbar-actions{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-top:10px}
+.demo-toolbar .demo-actions{margin:0;min-width:310px}
+.demo-toolbar .toggle{margin:0;font-size:11px}
+.demo-toolbar .demo-disclaimer{margin:9px 0 0;font-size:10px}
+.tool-panel{border:1px solid #dce6de;border-radius:12px;background:#fff;margin-bottom:22px;padding:14px 20px;color:#456653}
+.tool-panel summary{font-size:12px}
+.tool-panel summary>.subtle{margin-left:10px}
+#tool-activity{font-size:11px;line-height:1.8;margin:12px 0;color:#397257}
+.tool-table-wrap{overflow-x:auto}
+.tool-table{width:100%;border-collapse:collapse;font-size:11px;text-align:left;line-height:1.6}
+.tool-table th{font-size:10px;background:#f4f7f4;color:#718677;font-weight:600;padding:10px 12px;border-bottom:1px solid #dde7df}
+.tool-table td{padding:10px 12px;border-bottom:1px solid #edf1ed;vertical-align:middle}
+.tool-table td:first-child{min-width:190px}
+.tool-table td:nth-child(2){min-width:170px}
+.tool-table td:last-child{min-width:125px}
+.tool-table td code{display:block;font-size:10px;font-family:Consolas,monospace;color:#7a8f7e}
+.tool-table strong{font-weight:600}
+.tool-table .badge{white-space:nowrap;font-size:9px}
+.approval-badge{background:#fff1d3;color:#8b692e}
+.tool-recent{background:#f0f8f2}
+.tool-waiting{background:#fffbf0}
+.tool-state{display:inline-block;padding:3px 7px;border-radius:5px;font-size:9px;font-weight:600;white-space:nowrap}
+.tool-state.recent{background:#dceee1;color:#366c49}
+.tool-state.waiting{background:#fbeac0;color:#896323}
+.flight-list{grid-template-columns:repeat(3,minmax(0,1fr))}
+.flight-card{padding:13px}
+.flight-card .flight-top{align-items:flex-start;gap:5px;flex-wrap:wrap;font-size:9px}
+.flight-card .button{font-size:10px}
+.flight-card.unavailable{background:#f6f7f5;border-color:#dedfd8}
+.flight-card.unavailable .flight-time{color:#889388}
+.flight-card.unavailable .flight-bottom strong{color:#a9684d}
+.capacity-reason{font-size:9px;color:#96745e;line-height:1.6;margin-top:8px}
+.flight-card.unavailable .button:disabled{opacity:1;background:#e8eae4;color:#8b9385}
+.annotation{border:0;cursor:pointer;padding:0;font-family:inherit;flex-shrink:0}
+.annotation:hover{background:#ffd172;transform:scale(1.08)}
+.pin-highlight{outline:3px solid #e3b358;outline-offset:5px;border-radius:10px}
+#annotation-dialog{max-width:480px;width:calc(100% - 32px);padding:24px;border:1px solid #d8e4d9;border-radius:18px;color:#294e3f;box-shadow:0 20px 100px #163e3b40}
+#annotation-dialog::backdrop{background:#12383040;backdrop-filter:blur(1px)}
+.annotation-dialog-header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.annotation-dialog-header .eyebrow{font-size:9px;letter-spacing:1px}
+.annotation-dialog-header .button{padding:5px 10px;min-height:32px}
+#annotation-title{font-size:20px;line-height:1.5;margin:15px 0 10px}
+#annotation-description{font-size:13px;line-height:1.9;color:#647b6b}
+.annotation-rule{font-size:12px;line-height:1.9;padding:13px 15px;background:#edf5ef;border-left:3px solid #6b9b7c;border-radius:5px}
+#annotation-dialog>.subtle{font-size:10px;margin:15px 0 0}
+@media(max-width:1100px){.flight-list{grid-template-columns:1fr 1fr}.flight-card.unavailable{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;column-gap:15px}.unavailable .flight-top{grid-column:1/-1;margin-bottom:8px}.unavailable .flight-time{grid-row:2/4}.unavailable .flight-bottom{margin-top:0}.unavailable .button{grid-column:1/-1}.flight-time small{font-size:9px}}
+@media(max-width:680px){.demo-toolbar{padding:14px}.demo-toolbar summary .subtle{display:block;margin:4px 0 0}.scenario-cards{grid-template-columns:1fr 1fr;gap:7px}.scenario-card{padding:11px 9px}.scenario-card.selected{padding:10px 8px}.scenario-card>span{font-size:8px;letter-spacing:.4px}.scenario-card strong{font-size:11px;line-height:1.5}.scenario-card small{font-size:9px;line-height:1.5}.demo-toolbar-actions{align-items:stretch;flex-direction:column;gap:13px}.demo-toolbar .demo-actions{min-width:0}.demo-toolbar .toggle{font-size:10px}.tool-panel{padding:13px}.tool-panel summary>.subtle{display:block;margin:4px 0 0}.tool-table{font-size:10px}.tool-table th,.tool-table td{padding:8px}.flight-list{grid-template-columns:1fr}.flight-card.unavailable{display:block;grid-column:auto}.flight-card .flight-top{font-size:10px}.flight-card .button{font-size:11px}.capacity-reason{font-size:10px}.flight-card.unavailable .flight-bottom{margin-top:10px}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}

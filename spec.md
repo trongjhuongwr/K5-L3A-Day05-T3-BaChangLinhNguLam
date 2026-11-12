@@ -243,10 +243,84 @@ Cùng sử dụng một mô hình AI, nhưng việc thay đổi mức tự chủ
   > → **Giá trị mang lại:** AI gánh vác phần việc chạy đua với thời gian (giữ chỗ 20 phút trước khi kho vé cạn kiệt), nhưng trả lại quyền định đoạt cho hành khách ở những ngã rẽ một chiều không thể đảo ngược. Khách hàng cảm thấy an tâm vì được bảo vệ chứ không cảm thấy bị AI tước đoạt quyền kiểm soát.
 
 ## §5. Prototype (Chặng 5)
-*(Đang thực hiện)*
+
+### 1. File, công cụ và phạm vi
+- **Mở:** [prototype/index.html](prototype/index.html) trực tiếp bằng Chrome/Edge; không cần cài đặt hoặc server.
+- **Hướng dẫn demo:** [prototype/README.md](prototype/README.md).
+- **Công cụ:** HTML/CSS/JavaScript thuần; dữ liệu giả từ fixture T3. Không có lời gọi AI thật, backend, đặt vé, thanh toán hoặc bàn giao thật. Hội thoại được mô phỏng bằng nhánh từ khoá.
+- **Ca demo chính:** #6 — khách muốn đổi cả hai mẹ con sang BM 217 lúc 21:00 nhưng chỉ còn 1 chỗ. Prototype chặn phương án thiếu chỗ, đề xuất chuyến đủ chỗ; sau đó thử câu xác nhận mơ hồ “Ừ, đổi đi” để cho thấy vé chỉ được đổi sau nút duyệt cụ thể. Ca chính khác ca “đổi sang sáng mai” trong mẫu giảng viên.
+- **Nhánh bổ sung:** #5 mơ hồ, #7 hoàn vé có checkbox, #8 trẻ bay một mình, #13 báo đổi nhầm, hết 20 phút giữ chỗ và một ca chọn rõ BM 201.
+
+### 2. Ảnh và điểm trỏ thiết kế
+- [Ảnh 1 — BM 217 thiếu chỗ, hai lựa chọn đủ chỗ](prototype/screenshots/01-family-options.png).
+- [Ảnh 2 — Chốt chặn hoàn vé](prototype/screenshots/02-refund-gate.png).
+- Có thể bật **Hiện chú thích HAX/PAIR** trong bảng điều khiển demo rồi bấm số để mở giải thích và làm nổi bật khu vực tương ứng. Bảng đầy đủ gồm cả điểm ở bước giữ/duyệt:
+
+| Số | Thể hiện gì | Nguyên tắc / mức tự chủ |
+|---|---|---|
+| 1 | PNR, 2 hành khách, tuổi, lý do huỷ, nguồn dữ liệu | PAIR Explainability & Trust; tra cứu tự làm |
+| 2 | Badge Trợ lý AI và giới hạn đổi/hoàn | HAX G1; khách giữ quyền duyệt giao dịch |
+| 3 | BM 217 còn 1 chỗ, không đủ cho 2 người; không tự tách bé | PAIR Explainability; chặn phương án không hợp lệ |
+| 4 | BM 201 / BM 205, ngày giờ và số chỗ; khách chọn riêng | HAX G10; không đoán lựa chọn |
+| 5 | Đồng hồ 20 phút, “Chưa đổi vé”, thẻ duyệt đủ chuyến/người/0đ/cảnh báo | Giữ tự làm; đổi cần khách duyệt; số này xuất hiện khi chọn chuyến |
+| 6 | Huỷ giữ chỗ, chọn lại, gặp nhân viên | HAX G8/G9 + PAIR Graceful Failure; đường lui trước giao dịch |
+| 7 | Cảnh báo hoàn, checkbox khoá nút, lối quay lại đổi miễn phí | PAIR Graceful Failure; hoàn cần khách duyệt nghiêm ngặt |
+
+### 3. Quyết định thiết kế và phương án đã loại
+- **Hỗ trợ trình bày:** 6 thẻ chọn kịch bản giúp chuyển ca trực tiếp; bảng mức tự chủ hiển thị tool vừa mô phỏng và tool đang chờ khách duyệt, không sửa chính sách §4. Các phần này dành riêng cho demo.
+- **So sánh phương án:** hiển thị cả BM 217 bị khoá, kèm “1 chỗ / cần 2” và lý do không tự tách mẹ và bé, thay vì ẩn chuyến không hợp lệ. Hai chuyến đủ chỗ có nút giữ riêng. Chú thích HAX/PAIR bấm được giúp người xem truy ngược quyết định đến vị trí cụ thể.
+- **Bằng chứng:** hiện số chỗ, danh sách khách và dữ liệu đặt chỗ thay cho “AI chắc chắn 95%”; không có căn cứ để tính tỷ lệ tin cậy, còn dữ liệu cụ thể giúp khách tự kiểm tra.
+- **Xác nhận:** chọn thẻ duyệt có chuyến/ngày/giờ/hành khách/chi phí thay cho xác nhận bằng chat. “Ừ, đổi đi” không gọi tool đổi hay gửi hoàn. Hoàn cần thêm checkbox; đóng/quay lại không gửi yêu cầu và xoá đồng thuận cũ.
+- **Tốc độ và an toàn:** giữ 2 chỗ trước khi khách duyệt, đếm ngược thực 20 phút. Có nút tua hết hạn dành riêng cho demo; hết hạn chặn đổi, phải kiểm tra và chọn lại.
+- **Phục hồi:** không có nút hoàn tác vé đã đổi/hoàn đã gửi. Báo đổi nhầm hoặc yêu cầu ngoài thẩm quyền sẽ dừng tự động, tạo bàn giao mô phỏng gồm PNR, hội thoại và trạng thái; không hứa nhân viên thật đã nhận hoặc chắc chắn sửa được.
+- **Tool mở rộng cần đồng bộ khi nhóm hoàn thiện §4:** `huy_giu_cho` mô phỏng nhả chỗ trước hạn khi huỷ/chọn lại/bàn giao; lý do là cho khách đường lui với thao tác giữ chỗ. Tool gốc chỉ bảo đảm tự nhả sau 20 phút. Không nhầm nhả chỗ tạm với hoàn tác đổi vé.
+- **Không bịa dữ liệu thiếu:** không hiển thị số ghế, giờ đến hoặc số tiền hoàn cụ thể. Khoảng 14–90 ngày kế thừa giả định trong spec nhóm, không phải cam kết hãng thật.
+
+### 4. Kiểm thử prototype
+- `node prototype/verify.cjs`: **8 nhóm kiểm tra logic đều đạt**, gồm thiếu chỗ, xác nhận mơ hồ, hết hạn, checkbox/nút gửi, xoá đồng thuận khi quay lại, chuyển người cho trẻ bay một mình, chặn đổi trùng và chặn đổi tiếp sau hoàn.
+- Kiểm thử Chrome qua `python prototype/verify-browser.py`: luồng bấm đổi/hoàn/chuyển người, hết hạn rồi kiểm tra lại, không ghi nhận lỗi JavaScript. Kiểm tra 4 trạng thái ở chiều rộng 390px không tràn ngang; ảnh chụp được lưu trong `prototype/screenshots/`.
+- Giới hạn: chưa kết nối hãng bay/AI thật; chỗ trống cố định theo fixture; chưa kiểm tra mọi trình duyệt hay trình đọc màn hình. Bộ 3 tiêu chí nghiệm thu và kết quả trên hai ca đắt nhất được ghi ở §6.
 
 ## §6. Tốt là gì (Chặng 6)
-*(Đang thực hiện)*
+
+### 1. Phạm vi và ba tiêu chí Pass/Fail
+
+**Mục tiêu nghiệm thu:** prototype bảo vệ quyền quyết định của khách trước thao tác khó đảo ngược. Chấm trên giao diện bấm được và nhật ký tool mô phỏng, không chấm độ đẹp hoặc khả năng đặt vé thật. Hai ca nghiệm thu là **#5 — “Đổi giúp mình sang sáng mai”** và **#7 — “Huỷ hết đi, hoàn tiền”**, đúng hai ca đắt nhất đã chọn ở §2.
+
+| Mã | Tiêu chí | Pass khi đáp ứng đủ | Fail nếu có bất kỳ dấu hiệu nào |
+|---|---|---|---|
+| **C1** | **Không thực hiện giao dịch khi chưa duyệt đúng** | **#5:** trước khi chọn rõ chuyến và bấm nút xác nhận, log có **0** lần `doi_chuyen_bay`; nhắn “Ừ, đổi đi” không thực hiện đổi. **#7:** log có **0** lần `gui_yeu_cau_hoan_ve` cho đến khi khách **tích checkbox và bấm nút gửi**; chat “Đồng ý” và chỉ tích checkbox đều chưa gửi. | Có lệnh đổi/hoàn trước bước duyệt tương ứng, tự chọn giờ khi khách nói “sáng mai”, hoặc dùng tin nhắn thay cho nút duyệt. |
+| **C2** | **Hiển thị đủ thông tin và hậu quả trước khi duyệt** | **#5:** thẻ xác nhận có mã chuyến mới, ngày, giờ, tên cả 2 hành khách, chi phí 0đ và cảnh báo dùng lần đổi miễn phí duy nhất; bước giữ ghi rõ **“Chưa đổi vé”**. **#7:** thẻ hoàn có PNR, cả 2 tên khách, cảnh báo gửi rồi không thể huỷ, mất chỗ/quyền đổi miễn phí, nơi nhận là phương thức thanh toán ban đầu và thời gian có thể tới 90 ngày. | Thiếu bất kỳ thông tin bắt buộc nào nêu ở cột Pass, báo giữ chỗ thành đã đổi vé hoặc báo gửi hoàn thành đã nhận tiền. |
+| **C3** | **Có đường lui trước giao dịch và dừng tự động sau sự cố** | **#5:** huỷ giữ/chọn lại không đổi vé; duyệt hợp lệ tạo đúng **1** lệnh đổi; báo đổi nhầm sau đó chuyển nhân viên và không đổi tiếp. **#7:** quay lại trước khi gửi không tạo lệnh hoàn; mở lại thẻ thì checkbox trở về chưa tích, nút gửi bị khoá; duyệt hợp lệ tạo đúng **1** yêu cầu; đổi ý sau gửi chuyển nhân viên, không gửi lại/đổi vé tự động và không hứa huỷ yêu cầu. | Quay lại vẫn tạo giao dịch, giữ lại đồng thuận cũ, giao dịch bị thực hiện lặp, tự sửa bằng một giao dịch tiếp theo hoặc hứa hoàn tác không có căn cứ. |
+
+**Lý do chọn:** C1 chặn mất quyền lợi do hiểu sai ý định; C2 cho khách kiểm tra đúng nội dung trước khi quyết định; C3 bảo đảm khách có đường lui và không bị thiệt hại thêm khi đã xảy ra sự cố. Không dùng tiêu chí “AI trả lời hay” hoặc “người dùng thấy an tâm” vì người chấm khó thống nhất Pass/Fail.
+
+### 2. Chấm thử trên hai kịch bản đắt nhất
+
+**Đã chạy kiểm tra bằng Chrome trên prototype hiện tại.** Kết quả 6/6 ô dưới đây chỉ áp dụng cho hai luồng đã thử, không phải tỷ lệ thành công trên mọi yêu cầu của người dùng.
+
+| Kịch bản | C1 — Duyệt đúng | C2 — Đủ thông tin | C3 — Đường lui / sự cố | Kết luận |
+|---|---|---|---|---|
+| **#5: “Đổi giúp mình sang sáng mai”** | **PASS:** ban đầu chưa chọn chuyến; nhắn “Ừ, đổi đi” vẫn không đổi. Chọn BM 205 mới giữ 2 chỗ; chỉ nút duyệt tạo lệnh đổi. | **PASS:** thẻ có BM 205, 13/11/2026, 09:30, Nguyễn Minh An, Nguyễn Gia Bình, 0đ và cảnh báo dùng lần đổi miễn phí. Có dòng giữ chỗ chưa đổi vé. | **PASS:** huỷ giữ trả về chọn chuyến, không đổi. Chọn lại và duyệt ghi đúng 1 lệnh đổi; báo đổi nhầm chuyển nhân viên, số lệnh đổi vẫn là 1. | Đạt **3/3** tiêu chí trên luồng đã thử. |
+| **#7: “Huỷ hết đi, hoàn tiền”** | **PASS:** chat “Đồng ý” không gửi; tích checkbox vẫn chưa gửi; tích và bấm nút gửi mới tạo yêu cầu. | **PASS:** đủ PNR, tên cả hai khách, tính không thể huỷ, hậu quả mất chỗ/quyền đổi, nơi nhận và thời gian hoàn. Kết quả ghi đã gửi yêu cầu, chưa nhận tiền. | **PASS:** quay về đổi chuyến không gửi hoàn; mở lại xoá checkbox và khoá nút. Duyệt tạo đúng 1 yêu cầu; đổi ý chuyển nhân viên, không phát sinh thêm lệnh hoàn hay đổi vé. | Đạt **3/3** tiêu chí trên luồng đã thử. |
+
+### 3. Cách người ngoài nhóm kiểm tra lại
+
+Mở [prototype/index.html](prototype/index.html), mở **Nhật ký mô phỏng công cụ** để đối chiếu số lệnh.
+
+1. **Ca #5:** chọn thẻ “Đổi sang sáng mai” → nhắn “Ừ, đổi đi” → kiểm tra chưa có lệnh đổi → chọn BM 205 → đọc thẻ theo C2 → huỷ giữ → chọn lại BM 205 → xác nhận → kiểm tra đúng 1 lệnh đổi → bấm thử báo đổi nhầm → kiểm tra đã chuyển người, không có lệnh đổi thứ hai.
+2. **Ca #7:** chọn thẻ “Huỷ hết, hoàn tiền” → đọc cảnh báo theo C2 → nhắn “Đồng ý” → kiểm tra chưa gửi → tích checkbox → kiểm tra vẫn chưa gửi → quay về xem chuyến đổi → mở lại hoàn → kiểm tra checkbox đã xoá/nút gửi bị khoá → tích và bấm gửi → kiểm tra đúng 1 yêu cầu → bấm cần nhân viên → kiểm tra không có giao dịch tiếp theo.
+
+**Bằng chứng kiểm thử tự động:** `python prototype/verify-browser.py` thực hiện các bước kiểm tra DOM và nhật ký, in kết quả `ACCEPTANCE #5` và `ACCEPTANCE #7` cho C1/C2/C3. `node prototype/verify.cjs` kiểm tra bổ sung logic xác nhận, hết hạn giữ và chặn giao dịch lặp; 8 nhóm kiểm tra đều đạt. Các ảnh §5 minh hoạ màn hình, không thay thế bằng chứng bấm thử.
+
+### 4. Lỗi còn lại và giới hạn nghiệm thu
+
+- **Lỗi đã tái hiện ngoài hai luồng nghiệm thu:** chọn rõ BM 201 để giữ chỗ, rồi nhắn yêu cầu đổi cả hai sang BM 217. Hệ thống chặn chuyến thiếu chỗ và không đổi vé, nhưng quay về danh sách lựa chọn trong khi trạng thái giữ BM 201 cũ vẫn còn; đồng hồ không còn hiển thị ở màn hình đó. Cần thống nhất nhả chỗ cũ hoặc tiếp tục hiện chỗ đang giữ và hạn còn lại khi từ chối phương án mới. Đây là lỗi đồng bộ trạng thái cần sửa trước khi mở rộng nghiệm thu.
+- **Hội thoại chỉ mô phỏng theo từ khoá:** chưa chứng minh xử lý đúng mọi cách diễn đạt, nhiều yêu cầu trong cùng tin nhắn hoặc ca lạ. Không kết luận 6/6 ô đạt đồng nghĩa AI có độ chính xác 100%.
+- **Dữ liệu và tích hợp:** số chỗ là fixture; chưa thử kho vé thay đổi thực tế, lỗi mạng, kết quả giao dịch không rõ hoặc hệ thống hãng. Bàn giao cũng chỉ là mô phỏng, chưa đo thời gian nhân viên thật tiếp nhận.
+- **Giả định cần xác minh trước khi dùng thật:** khoảng hoàn 14–90 ngày và tool nhả chỗ trước hạn là giả định/mở rộng đã ghi ở §5. Không coi là chính sách hoặc năng lực đã được hãng xác nhận.
+
+**Kết luận nghiệm thu:** đạt yêu cầu demo đối với hai ca #5 và #7 trong phạm vi mô phỏng. Chưa đủ căn cứ phát hành cho hành khách thật; cần xử lý lỗi trạng thái nêu trên và kiểm chứng tích hợp trước bước đó.
 
 ## §7. Demo
 *(Đang thực hiện)*
