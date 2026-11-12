@@ -2,10 +2,10 @@
 
 ## Danh sách thành viên nhóm
 
-**Lớp:** L3A · **Bàn / zone:** Zone T3 · **Track:** T3 — Du lịch
+**Lớp:** L3A-H210 · **Bàn / zone:** Bàn 2 zone 3 · **Track:** T3 — Du lịch
 
 | Họ và Tên | Mã Học Viên | Việc đã làm |
-|---|---|---|
+| --- | --- | --- |
 | Nguyễn Trọng Hưởng | 2A202603607 | **Trưởng nhóm:** Chủ trì §1 (Lát cắt & Phạm vi), §4 (Mức tự chủ theo Cost-of-error), hoàn thiện spec & trình bày phần Mức tự chủ trong Demo |
 | Phạm Ngọc Minh Quân | 2A202603626 | **Thành viên:** Phụ trách §2 (Xây dựng 8 kịch bản rủi ro phủ 4 lớp, khoanh 2 ca đắt nhất), §3 (Thiết kế UX khi AI sai, thoại nguyên văn, áp dụng HAX/PAIR) & trình bày phần Kịch bản/UX trong Demo |
 | Trần Minh Tân | 2A202603688 | **Thành viên:** Phụ trách §5 (Dựng Prototype tương tác ca khó BM 217 vs trẻ 5 tuổi), §6 (3 tiêu chí Pass/Fail), quản lý tài sản hình ảnh & trình bày/thao tác Demo |
@@ -15,9 +15,11 @@
 ## §1. Lát cắt & phạm vi
 
 ### 1. Lát cắt chuẩn của Track T3 (Du lịch)
+
 > Trong **Đặt chỗ của tôi**, khi **hành khách** vừa nhận tin chuyến bay bị huỷ và nhắn hỏi, **AI đề xuất và giữ chỗ chuyến thay thế, hỏi lại cho rõ, đổi vé, hay chuyển nhân viên**, để khách tới nơi kịp mà không mất vé hay tiền vì một thao tác không đảo lại được.
 
 ### 2. Ba việc tính năng KHÔNG làm (Out-of-Scope) & Lý do
+
 1. **Không tự ý đổi tên người bay hoặc chuyển nhượng PNR sang người khác:**
    - *Lý do:* Vi phạm quy định an toàn và an ninh hàng không quốc tế & Việt Nam (định danh thông tin PNR gắn liền với CCCD/Hộ chiếu theo chuẩn ICAO). Đây là nghiệp vụ đặc biệt nhằm phòng chống thị trường đen phe vé/đầu cơ vé trong tình huống bão gây huỷ chuyến hàng loạt. Nghiệp vụ này bắt buộc do nhân viên quầy có thẩm quyền kiểm tra giấy tờ tuỳ thân gốc thực hiện.
 2. **Không tự ý cam kết hoặc chi trả bồi thường tiền mặt khi huỷ chuyến do thời tiết:**
@@ -32,7 +34,7 @@
 ### 1. Bảng 15 kịch bản rủi ro (Phủ đủ 4 lớp ①②③④)
 
 | STT | Tin người dùng | Lớp | AI có thể sai thế nào (Bằng chứng trỏ tool/data) | Một sản phẩm tốt nên làm gì | Nhãn mức hại & Hậu quả cụ thể |
-|---|---|:---:|---|---|---|
+| --- | --- | :---: | --- | --- | --- |
 | **#1** | *“Chuyến bay BM 213 của tôi bị bão huỷ thì có được bồi thường tiền mặt không? Được bao nhiêu?”* | ① | `tra_cuu_dat_cho` trả về lý do huỷ là "thời tiết (bão)", nhưng không có trường bồi thường tiền mặt. AI tự suy đoán quy định chung và bịa ra mức bồi thường 200.000đ–400.000đ, hứa hẹn với khách. | Đối chiếu dữ liệu chính sách Bay Mẫu trong PNR TRV-7Q2K: nêu rõ huỷ do bão (thiên tai/bất khả kháng) được miễn trừ bồi thường tiền mặt; thông báo quyền lợi chuẩn gồm đổi vé miễn phí 1 lần trong 48h hoặc hoàn tiền 100%. | **Không chấp nhận được**: Khách kỳ vọng sai, gây tranh chấp gay gắt khi ra quầy sân bay; nhân viên hãng phải gánh chịu hậu quả và giải quyết khiếu nại. |
 | **#2** | *“Vé của tôi hạng Phổ thông Tiết kiệm thì đổi sang ngày mai mất bao nhiêu tiền phí?”* | ① | `tra_cuu_dat_cho` thấy hạng vé "Phổ thông Tiết kiệm", nhưng dữ liệu không có bảng phí đổi. AI suy luận từ quy tắc thương mại thông thường rằng hạng Tiết kiệm đổi mất phí 350.000đ + chênh lệch giá vé. | Xác định vé thuộc diện hoãn/huỷ do lỗi hãng/bão; kích hoạt chính sách hỗ trợ đột xuất: đổi vé miễn phí 1 lần trong 48h, không áp dụng biểu phí thương mại thông thường. | **Sửa được**: Khiến khách do dự hoặc từ bỏ đổi chuyến vì sợ mất phí, nhưng có thể đính chính trước khi phát sinh giao dịch tài chính. |
 | **#3** | *“BM 217 tối nay 21:00 còn bao nhiêu chỗ? Hai mẹ con tôi có chỗ ngồi cạnh nhau không?”* | ① | `tra_cuu_dat_cho` chỉ trả về tổng số chỗ còn lại ("BM 217: còn 1 chỗ"), không có dữ liệu sơ đồ ghế (seat map). AI bịa ra vị trí ghế cụ thể (ví dụ: ghế 12A và 12B cạnh nhau) và hứa xếp chỗ cho 2 người. | Báo trung thực từ dữ liệu tra cứu: BM 217 hiện chỉ còn đúng 1 chỗ trống, không đủ cho 2 khách trong PNR; thông báo hệ thống không có quyền chọn ghế trước và hướng dẫn chuyển sang chuyến sáng mai đủ 2 chỗ. | **Không chấp nhận được**: Khách tin có 2 chỗ cạnh nhau dẫn đến việc ra sân bay bị chia cắt mẹ con hoặc 1 người bị giữ lại không được lên máy bay. |
@@ -53,19 +55,22 @@
 
 ### 2. Lập luận chọn 2 kịch bản đắt nhất (§2 Quyết định)
 
-#### ⭐ Kịch bản đắt nhất #1: Kịch bản #5 — Xác nhận mơ hồ ("Đổi sang sáng mai nhé")
+#### Kịch bản đắt nhất #1: Kịch bản #5 — Xác nhận mơ hồ ("Đổi sang sáng mai nhé")
+
 - **Bản chất lỗi:** AI tự ý suy đoán lựa chọn của người dùng khi thông tin đầu vào mơ hồ ("sáng mai" có 2 chuyến: BM 201 07:00 và BM 205 09:30). AI tự động gọi `doi_chuyen_bay` theo logic máy móc ("sớm nhất là tốt nhất").
 - **Cái giá khi sai (Cost-of-error):** Thao tác `doi_chuyen_bay` đã tiêu tốn **lần đổi vé miễn phí duy nhất trong 48h** của khách. Khách đi cùng con nhỏ 5 tuổi không thể dậy kịp lúc 07:00. Khi khách muốn đổi lại sang 09:30, quyền đổi miễn phí đã mất, phát sinh phí đổi vé mới ngoài dự kiến và chuyến 09:30 có thể đã hết 4 chỗ còn lại trong lúc giằng co.
 - **Giá trị thiết kế:** Nhóm chọn ca này làm **trọng tâm dựng Prototype** vì thể hiện rõ nhất năng lực cốt lõi của Track T3: **Nhận diện mơ hồ → Hỏi lại để làm rõ → Giữ chỗ tạm thời (`giu_cho_chuyen_moi` 20 phút) → Khách chủ động xác nhận → Mới gọi `doi_chuyen_bay`**.
 
-#### ⭐ Kịch bản đắt nhất #2: Kịch bản #7 — Câu "Huỷ hết đi, hoàn tiền cho mình"
+#### Kịch bản đắt nhất #2: Kịch bản #7 — Câu "Huỷ hết đi, hoàn tiền cho mình"
+
 - **Bản chất lỗi:** Lỗi ngữ cảnh (Context Error). Khách hàng nhắn trong trạng thái bức xúc tức thời khi chuyến bay bị huỷ. Nếu AI hiểu theo nghĩa đen và lập tức gọi `gui_yeu_cau_hoan_ve`, giao dịch được gửi thẳng vào cổng thanh toán của hãng.
 - **Cái giá khi sai (Cost-of-error):** Theo quy định sản phẩm thật của Traveloka và đề bài: **Yêu cầu hoàn tiền đã gửi là KHÔNG THỂ HUỶ / KHÔNG THỂ ĐẢO NGƯỢC**. Tiền hoàn bị giữ xử lý từ 14 đến 90 ngày. Khách mất toàn bộ chỗ trên chuyến bay thay thế, mất quyền đổi vé miễn phí, và buộc phải tự bỏ tiền túi ra mua vé mới với mức giá cận giờ bay vô cùng đắt đỏ.
 - **Giá trị thiết kế:** Ca này chứng minh nguyên lý sản phẩm then chốt: **Một câu đồng ý chung chung trong khung chat không bao giờ đủ điều kiện để kích hoạt một thao tác một chiều có tính huỷ hoại tài chính**. Bắt buộc phải có bước chuyển đổi nhận thức qua cảnh báo rủi ro và nút duyệt chủ đích.
 
 #### Kịch bản suýt được chọn: Kịch bản #13 — Trợ lý đã đổi nhầm ("Bạn vừa đổi tôi sang 09:30 rồi! Tôi chọn 07:00 mà.")
+
 - **Lý do suýt chọn:** Hậu quả của việc đổi nhầm chuyến là vô cùng nghiêm trọng: lần đổi miễn phí đã mất, khách bị đẩy vào thế bị động và bức xúc tột cùng.
-- **Lý do nhóm quyết định loại khỏi top 2:** 
+- **Lý do nhóm quyết định loại khỏi top 2:**
   1. Kịch bản #5 tập trung vào giải pháp **chủ động phòng ngừa và chặn lỗi từ gốc** (Pre-action guardrail) trước khi quyền lợi của khách bị tước đoạt.
   2. Kịch bản #7 bao phủ một nhánh rủi ro hoàn toàn khác biệt và không thể cứu vãn về mặt tài chính: **hoàn vé một chiều không thể rút lại**.
   3. Kịch bản #13 thực chất là hậu quả sinh ra khi cơ chế phòng ngừa của #5 bị phá vỡ. Do đó, nhóm giữ #13 làm kịch bản kiểm thử quy trình **xử lý sự cố hậu kiểm (Post-failure recovery)**: lập tức khoá thao tác tự động, không cố sửa sai bằng bot mà chuyển ngay cho nhân viên (`chuyen_nhan_vien`) kèm toàn bộ nhật ký kiểm toán (audit trail).
@@ -73,7 +78,9 @@
 ---
 
 ### 3. Nguyên tắc bảo vệ nhãn mức hại
+
 Nhóm không chia đều các nhãn mức hại (trong 15 ca có tới 13 ca gắn nhãn **Không chấp nhận được**). Quyết định này phản ánh đúng bản chất khắt khe của **ngành hàng không**:
+
 - Mọi thao tác đổi chuyến (`doi_chuyen_bay`) hay hoàn vé (`gui_yeu_cau_hoan_ve`) đều gắn liền với tính pháp lý của vé, giới hạn 1 lần duy nhất trong 48h, và quy trình tài chính một chiều khó đảo ngược.
 - Mọi nhãn dán trong bảng đều được lượng hoá bằng **hậu quả cụ thể tác động trực tiếp** (mất quyền lợi đổi miễn phí, trẻ em bị từ chối vận chuyển, giam tiền 90 ngày, rủi ro an ninh hàng không) thay vì chỉ gán nhãn "nguy hiểm" chung chung.
 
@@ -160,7 +167,7 @@ Nhóm không chia đều các nhãn mức hại (trong 15 ca có tới 13 ca g�
 ### 3. Nguyên tắc HAX / PAIR áp dụng (Trỏ cụ thể vào giao diện)
 
 | Nguyên tắc | Ý nghĩa áp dụng | Điểm trỏ cụ thể trên giao diện (sẽ hiện thực ở Chặng 5) |
-|---|---|---|
+| --- | --- | --- |
 | **G1 · Minh bạch khả năng & định danh AI** *(tuân thủ Điều 11 khoản 1 Luật AI 134/2025/QH15)* | Cho người dùng biết rõ đang làm việc với AI, đồng thời minh bạch phạm vi quyền hạn của AI ngay từ đầu | **Header khung chat & Banner đầu phiên:** Hiển thị badge **`Trợ lý AI`** kèm dòng mô tả giới hạn: *"AI chỉ tra cứu & giữ chỗ tạm thời — Mọi thao tác đổi vé hoặc hoàn tiền chỉ thực hiện khi bạn bấm xác nhận"*. |
 | **G10 · Thu hẹp phạm vi khi nghi ngờ + PAIR *Explainability & Trust*** | Khi đầu vào mơ hồ (#5), không tự suy đoán thay khách; trưng bày bằng chứng tra cứu để khách tin đúng mức và tự kiểm chứng | **Thẻ tóm tắt dữ liệu PNR `TRV-7Q2K` & 2 Thẻ chọn chuyến sáng mai:** Hiển thị rõ nguồn dữ liệu `tra_cuu_dat_cho` (2 hành khách, lý do huỷ do bão, số chỗ trống thực tế: BM 201 còn 9 chỗ, BM 205 còn 4 chỗ) cùng 2 nút chọn độc lập thay vì tự đổi sang 07:00. |
 | **PAIR *Errors & Graceful Failure* + HAX G8/G9 (Gạt bỏ / Sửa dễ dàng)** | Ngăn ngừa lỗi ngữ cảnh không thể đảo ngược (#7) và luôn cung cấp đường lui an toàn cho khách ở mọi bước | **Thẻ cảnh báo hoàn vé có Checkbox khoá nút** (tách khỏi chat text, nút ưu tiên quay về đổi chuyến miễn phí) + **Nút `[Chuyển nhân viên hỗ trợ]` & `[Huỷ giữ chỗ]`** luôn hiển thị rõ ràng dưới các thẻ hành động. |
@@ -168,6 +175,7 @@ Nhóm không chia đều các nhãn mức hại (trong 15 ca có tới 13 ca g�
 ---
 
 ### 4. Tóm tắt 4 đường đi của trải nghiệm (Experience Paths)
+
 1. **Happy Path:** Khách chọn rõ chuyến (ví dụ BM 205 · 09:30) → AI gọi `giu_cho_chuyen_moi` (đếm ngược 20 phút) → Khách bấm duyệt → Gọi `doi_chuyen_bay` thành công.
 2. **Low-Confidence / Mơ hồ (#5):** Khách nói *"sáng mai"* → AI thu hẹp phạm vi, trình 2 phương án cụ thể từ `tra_cuu_dat_cho` và hỏi lại thay vì tự đổi.
 3. **Failure / Không căn cứ & Vượt quyền (#1, #8, #9):** AI từ chối bịa bồi thường hoặc đổi tên/tách trẻ em; nêu rõ giới hạn từ dữ liệu và kích hoạt `chuyen_nhan_vien`.
@@ -178,7 +186,7 @@ Nhóm không chia đều các nhãn mức hại (trong 15 ca có tới 13 ca g�
 ### 1. Phân loại mức tự chủ cho từng công cụ theo Cost-of-Error
 
 | Công cụ | Mức tự chủ | Cơ chế kiểm soát nếu cần duyệt | Lý do theo Cost-of-Error (Sai ai chịu · Đảo được không · Chờ mất gì) | Phương án đã cân nhắc & Vì sao loại |
-|---|:---:|---|---|---|
+| --- | :---: | --- | --- | --- |
 | `tra_cuu_dat_cho` | **TỰ LÀM** | AI tự động kích hoạt ngay khi nhận câu hỏi của khách. | • **Sai ai chịu:** Không ai chịu thiệt hại vật chất vì đây là lệnh chỉ đọc (Read-only), không làm thay đổi trạng thái PNR, kho vé hay tài chính.<br>• **Đảo được không:** Đảo được 100% (chỉ cần truy vấn lại).<br>• **Chờ người thì mất gì:** Mất tính tức thời. Khách hàng đang ở sân bay hoang mang, nếu việc đọc PNR và tìm chuyến trống cũng phải chờ duyệt thì trợ lý AI hoàn toàn mất giá trị phục vụ. | *Cần người duyệt:* Loại vì gây nghẽn cổ chai vô lý cho một thao tác đọc không có rủi ro thay đổi dữ liệu. |
 | `giu_cho_chuyen_moi` | **TỰ LÀM** | AI tự động gọi giữ chỗ tạm thời trong 20 phút khi khách chọn chuyến cụ thể hoặc khi cần tạo phương án dự phòng an toàn. | • **Sai ai chịu:** Nếu giữ nhầm chuyến, chi phí sai sót thực tế bằng 0: hết 20 phút không xác nhận thì hệ thống tự động nhả chỗ về kho vé chung, không phát sinh bất kỳ khoản phí nào, vé cũ bị huỷ vẫn được giữ nguyên.<br>• **Đảo được không:** Đảo được 100% (tự động nhả sau 20 phút hoặc khách bấm nút huỷ giữ chỗ).<br>• **Chờ người thì mất gì:** **MẤT CHUYẾN BAY THAY THẾ!** Trong bối cảnh bão huỷ chuyến hàng loạt, hàng trăm hành khách cùng lúc vào app tìm vé. Chuyến BM 201 chỉ còn 9 chỗ; nếu bắt nhân viên hoặc khách duyệt mới được giữ chỗ, thì trong 2–3 phút chờ đợi đó, toàn bộ 9 chỗ này sẽ bị người khác quét sạch. Do đó, **cái giá của việc chờ người duyệt đắt hơn gấp nhiều lần việc AI giữ nhầm chỗ tạm thời**. | *Cần người duyệt:* Loại vì độ trễ phê duyệt sẽ tước đoạt cơ hội giữ được vé thay thế quý giá của hành khách. |
 | `doi_chuyen_bay` | **CẦN KHÁCH DUYỆT** *(Level 2)* | • **Ai duyệt:** Khách hàng trực tiếp bấm nút xác nhận 1-chạm.<br>• **Người duyệt thấy gì:** Thẻ tóm tắt xác nhận gồm: Chuyến cũ → Chuyến mới, giờ bay, tên 2 hành khách (Nguyễn Minh An & bé Gia Bình 5t), số tiền chênh lệch (0đ), và cảnh báo: *"Dùng lần đổi miễn phí duy nhất trong 48h"*, kèm đồng hồ đếm ngược giữ chỗ 20 phút.<br>• **Quá hạn:** Hết 20 phút không bấm duyệt, chỗ giữ tự nhả ra kho vé, vé cũ giữ nguyên diện huỷ do bão để khách chọn lại. | • **Sai ai chịu:** Hành khách chịu thiệt hại nghiêm trọng. Theo chính sách hãng Bay Mẫu, khách chỉ có **duy nhất 1 lần đổi miễn phí trong 48h**. Khi lệnh này chạy, vé cũ bị huỷ vĩnh viễn trên hệ thống GDS và vé mới được xuất. Nếu đổi sai giờ hoặc đổi thiếu người, khách mất quyền đổi 0đ, muốn đổi lại phải đóng phí đổi và chênh lệch vé rất đắt, đồng thời chuyến cũ không thể khôi phục.<br>• **Đảo được không:** Cực khó đảo ngược.<br>• **Chờ người thì mất gì:** **Không mất gì cả**, vì đã có tool `giu_cho_chuyen_moi` bảo vệ giữ chỗ 20 phút phía trước. Khách hoàn toàn có đủ thời gian đọc kỹ thông tin và bấm duyệt 1-chạm an tâm. | • *Tự làm:* Loại vì nếu AI tự đổi theo phỏng đoán (như Kịch bản #5 tự đổi sang 07:00), khách sẽ mất vĩnh viễn quyền đổi miễn phí nếu con nhỏ không dậy kịp.<br>• *Chỉ gợi ý (Level 1):* Loại vì bắt khách tự mò 10 bước trong hoảng loạn là quá chậm và dễ thao tác sai. |
@@ -207,16 +215,19 @@ Nhóm không chia đều các nhãn mức hại (trong 15 ca có tới 13 ca g�
 ### 3. Thử nghiệm ma trận mức tự chủ trên 3 kịch bản
 
 #### ① Thử trên Kịch bản đắt #5 (Khách nói mơ hồ: *"Đổi giúp mình sang sáng mai nhé"*):
+
 - *Cái sai có bị chặn không?* **CÓ BỊ CHẶN**. Do `doi_chuyen_bay` thuộc Mức 2 và AI nhận diện thông tin giờ bay mơ hồ, AI không tự ý gọi lệnh đổi vé sang 07:00.
 - *Còn việc nào làm khi lẽ ra phải hỏi?* **KHÔNG**. AI dừng lại, hiển thị 2 thẻ lựa chọn rõ ràng (BM 201 07:00 và BM 205 09:30). Chỉ khi khách bấm chọn 1 chuyến cụ thể, AI mới giữ chỗ và hiển thị nút xác nhận đổi.
 - *Người dùng có phải chờ vô ích không?* **KHÔNG**. Khách thấy ngay 2 phương án cùng số chỗ còn lại, chỉ mất 1 chạm để chọn và 1 chạm để xác nhận.
 
 #### ② Thử trên Kịch bản đắt #7 (Khách nhắn bực tức: *"Huỷ hết đi, hoàn tiền cho mình"*):
+
 - *Cái sai có bị chặn không?* **CÓ BỊ CHẶN TUYỆT ĐỐI**. Tool `gui_yeu_cau_hoan_ve` thuộc Mức 2 kèm Checkbox Gate. Lệnh hoàn vé không bao giờ được kích hoạt từ câu chat văn bản.
 - *Còn việc nào làm khi lẽ ra phải hỏi?* **KHÔNG**. Hệ thống mở thẻ cảnh báo pháp lý và bắt buộc tick cam kết mới mở nút hoàn tiền.
 - *Người dùng có phải chờ vô ích không?* **KHÔNG**. Nếu khách thực sự kiên quyết hoàn vé, họ chỉ mất đúng 5 giây đọc cảnh báo và tick chọn. Nếu khách chỉ nói bộc phát, thiết kế này cứu khách khỏi việc mất sạch vé bay và kẹt tiền 90 ngày.
 
 #### ③ Thử trên Kịch bản bình thường (Khách nhắn rõ ràng: *"Đổi giúp mình sang chuyến sáng mai BM 201 lúc 07:00 nhé"*):
+
 - *Cái sai có bị chặn không?* Không có sai sót nào xảy ra.
 - *Còn việc nào làm khi lẽ ra phải hỏi?* Không hỏi thừa hay làm phiền khách, vì thông tin chuyến bay, giờ bay và hành khách đã hoàn toàn rõ ràng.
 - *Người dùng bình thường có phải chờ vô ích không?* **KHÔNG**. AI tự động gọi `giu_cho_chuyen_moi` ngay lập tức, hiển thị thẻ xác nhận 1-chạm: `[Xác nhận đổi sang BM 201 07:00 · 2 khách · 0đ]`. Khách bấm xác nhận là có vé mới trong vòng 10 giây.
@@ -252,12 +263,13 @@ Cùng sử dụng một mô hình AI, nhưng việc thay đổi mức tự chủ
 - **Nhánh bổ sung:** #5 mơ hồ, #7 hoàn vé có checkbox, #8 trẻ bay một mình, #13 báo đổi nhầm, hết 20 phút giữ chỗ và một ca chọn rõ BM 201.
 
 ### 2. Ảnh và điểm trỏ thiết kế
+
 - [Ảnh 1 — BM 217 thiếu chỗ, hai lựa chọn đủ chỗ](prototype/screenshots/01-family-options.png).
 - [Ảnh 2 — Chốt chặn hoàn vé](prototype/screenshots/02-refund-gate.png).
 - Có thể bật **Hiện chú thích HAX/PAIR** trong bảng điều khiển demo rồi bấm số để mở giải thích và làm nổi bật khu vực tương ứng. Bảng đầy đủ gồm cả điểm ở bước giữ/duyệt:
 
 | Số | Thể hiện gì | Nguyên tắc / mức tự chủ |
-|---|---|---|
+| --- | --- | --- |
 | 1 | PNR, 2 hành khách, tuổi, lý do huỷ, nguồn dữ liệu | PAIR Explainability & Trust; tra cứu tự làm |
 | 2 | Badge Trợ lý AI và giới hạn đổi/hoàn | HAX G1; khách giữ quyền duyệt giao dịch |
 | 3 | BM 217 còn 1 chỗ, không đủ cho 2 người; không tự tách bé | PAIR Explainability; chặn phương án không hợp lệ |
@@ -267,6 +279,7 @@ Cùng sử dụng một mô hình AI, nhưng việc thay đổi mức tự chủ
 | 7 | Cảnh báo hoàn, checkbox khoá nút, lối quay lại đổi miễn phí | PAIR Graceful Failure; hoàn cần khách duyệt nghiêm ngặt |
 
 ### 3. Quyết định thiết kế và phương án đã loại
+
 - **Hỗ trợ trình bày:** 6 thẻ chọn kịch bản giúp chuyển ca trực tiếp; bảng mức tự chủ hiển thị tool vừa mô phỏng và tool đang chờ khách duyệt, không sửa chính sách §4. Các phần này dành riêng cho demo.
 - **So sánh phương án:** hiển thị cả BM 217 bị khoá, kèm “1 chỗ / cần 2” và lý do không tự tách mẹ và bé, thay vì ẩn chuyến không hợp lệ. Hai chuyến đủ chỗ có nút giữ riêng. Chú thích HAX/PAIR bấm được giúp người xem truy ngược quyết định đến vị trí cụ thể.
 - **Bằng chứng:** hiện số chỗ, danh sách khách và dữ liệu đặt chỗ thay cho “AI chắc chắn 95%”; không có căn cứ để tính tỷ lệ tin cậy, còn dữ liệu cụ thể giúp khách tự kiểm tra.
@@ -277,6 +290,7 @@ Cùng sử dụng một mô hình AI, nhưng việc thay đổi mức tự chủ
 - **Không bịa dữ liệu thiếu:** không hiển thị số ghế, giờ đến hoặc số tiền hoàn cụ thể. Khoảng 14–90 ngày kế thừa giả định trong spec nhóm, không phải cam kết hãng thật.
 
 ### 4. Kiểm thử prototype
+
 - `node prototype/verify.cjs`: **8 nhóm kiểm tra logic đều đạt**, gồm thiếu chỗ, xác nhận mơ hồ, hết hạn, checkbox/nút gửi, xoá đồng thuận khi quay lại, chuyển người cho trẻ bay một mình, chặn đổi trùng và chặn đổi tiếp sau hoàn.
 - Kiểm thử Chrome qua `python prototype/verify-browser.py`: luồng bấm đổi/hoàn/chuyển người, hết hạn rồi kiểm tra lại, không ghi nhận lỗi JavaScript. Kiểm tra 4 trạng thái ở chiều rộng 390px không tràn ngang; ảnh chụp được lưu trong `prototype/screenshots/`.
 - Giới hạn: chưa kết nối hãng bay/AI thật; chỗ trống cố định theo fixture; chưa kiểm tra mọi trình duyệt hay trình đọc màn hình. Bộ 3 tiêu chí nghiệm thu và kết quả trên hai ca đắt nhất được ghi ở §6.
@@ -288,7 +302,7 @@ Cùng sử dụng một mô hình AI, nhưng việc thay đổi mức tự chủ
 **Mục tiêu nghiệm thu:** prototype bảo vệ quyền quyết định của khách trước thao tác khó đảo ngược. Chấm trên giao diện bấm được và nhật ký tool mô phỏng, không chấm độ đẹp hoặc khả năng đặt vé thật. Hai ca nghiệm thu là **#5 — “Đổi giúp mình sang sáng mai”** và **#7 — “Huỷ hết đi, hoàn tiền”**, đúng hai ca đắt nhất đã chọn ở §2.
 
 | Mã | Tiêu chí | Pass khi đáp ứng đủ | Fail nếu có bất kỳ dấu hiệu nào |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | **C1** | **Không thực hiện giao dịch khi chưa duyệt đúng** | **#5:** trước khi chọn rõ chuyến và bấm nút xác nhận, log có **0** lần `doi_chuyen_bay`; nhắn “Ừ, đổi đi” không thực hiện đổi. **#7:** log có **0** lần `gui_yeu_cau_hoan_ve` cho đến khi khách **tích checkbox và bấm nút gửi**; chat “Đồng ý” và chỉ tích checkbox đều chưa gửi. | Có lệnh đổi/hoàn trước bước duyệt tương ứng, tự chọn giờ khi khách nói “sáng mai”, hoặc dùng tin nhắn thay cho nút duyệt. |
 | **C2** | **Hiển thị đủ thông tin và hậu quả trước khi duyệt** | **#5:** thẻ xác nhận có mã chuyến mới, ngày, giờ, tên cả 2 hành khách, chi phí 0đ và cảnh báo dùng lần đổi miễn phí duy nhất; bước giữ ghi rõ **“Chưa đổi vé”**. **#7:** thẻ hoàn có PNR, cả 2 tên khách, cảnh báo gửi rồi không thể huỷ, mất chỗ/quyền đổi miễn phí, nơi nhận là phương thức thanh toán ban đầu và thời gian có thể tới 90 ngày. | Thiếu bất kỳ thông tin bắt buộc nào nêu ở cột Pass, báo giữ chỗ thành đã đổi vé hoặc báo gửi hoàn thành đã nhận tiền. |
 | **C3** | **Có đường lui trước giao dịch và dừng tự động sau sự cố** | **#5:** huỷ giữ/chọn lại không đổi vé; duyệt hợp lệ tạo đúng **1** lệnh đổi; báo đổi nhầm sau đó chuyển nhân viên và không đổi tiếp. **#7:** quay lại trước khi gửi không tạo lệnh hoàn; mở lại thẻ thì checkbox trở về chưa tích, nút gửi bị khoá; duyệt hợp lệ tạo đúng **1** yêu cầu; đổi ý sau gửi chuyển nhân viên, không gửi lại/đổi vé tự động và không hứa huỷ yêu cầu. | Quay lại vẫn tạo giao dịch, giữ lại đồng thuận cũ, giao dịch bị thực hiện lặp, tự sửa bằng một giao dịch tiếp theo hoặc hứa hoàn tác không có căn cứ. |
