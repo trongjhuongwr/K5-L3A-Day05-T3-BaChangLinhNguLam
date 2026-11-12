@@ -243,10 +243,139 @@ Cùng sử dụng một mô hình AI, nhưng việc thay đổi mức tự chủ
   > → **Giá trị mang lại:** AI gánh vác phần việc chạy đua với thời gian (giữ chỗ 20 phút trước khi kho vé cạn kiệt), nhưng trả lại quyền định đoạt cho hành khách ở những ngã rẽ một chiều không thể đảo ngược. Khách hàng cảm thấy an tâm vì được bảo vệ chứ không cảm thấy bị AI tước đoạt quyền kiểm soát.
 
 ## §5. Prototype (Chặng 5)
-*(Đang thực hiện)*
+
+### 1. Thông tin triển khai & Công nghệ
+- **Vị trí file:** Thư mục [`prototype/index.html`](prototype/index.html) trong repo này (kèm hướng dẫn tại [`prototype/README.md`](prototype/README.md)).
+- **Công cụ xây dựng:** HTML5, CSS3 (Modern Flexbox/Grid), Vanilla JavaScript (Hoạt động độc lập 100%, không cần cài đặt Node.js, không cần backend server, chạy mượt mà trực tiếp trên mọi trình duyệt Chrome/Edge/Firefox).
+- **Phần mock:** Dữ liệu đặt chỗ PNR `TRV-7Q2K`, trạng thái chuyến bay gốc BM 213 (ĐÃ HUỶ do bão), danh sách 3 chuyến bay thay thế (BM 217, BM 201, BM 205), và cơ chế đếm ngược thời gian giữ chỗ thực tế 20:00 phút.
+- **Có lời gọi AI thật không:** Prototype tích hợp module giả lập logic AI (Rule-based Entity Parser) phân tích câu chat tự nhiên của khách hàng, trích xuất thực thể (chuyến bay, giờ bay, số lượng khách, ràng buộc trẻ em 5 tuổi), sau đó kích hoạt công cụ tương ứng theo đúng ma trận quyền tự chủ của §4.
+
+---
+
+### 2. Ca khó được nhóm lựa chọn trên Prototype
+> **Khác biệt hoàn toàn so với bài mẫu của giảng viên:**
+> Bài mẫu của giảng viên dùng ca cơ bản: *"Chuyến bị huỷ rồi à? Vậy đổi sang sáng mai nhé."*
+> **Prototype của nhóm Ba Chàng Lính Ngự Lâm xử lý ca khó phức tạp đỉnh điểm:**
+> Hành khách nhắn gấp tại sân bay: *"Chuyến bị huỷ rồi à? Tôi đang gấp lắm, đổi ngay cho tôi chuyến tối nay lúc 21h (BM 217) đi!"*
+> - **Ràng buộc dữ liệu ngặt nghèo:** BM 217 chỉ còn **đúng 1 chỗ**, trong khi PNR có **2 hành khách** (Nguyễn Minh An & bé Nguyễn Gia Bình 5 tuổi).
+> - **Ràng buộc an toàn hàng không:** Điều 6 Quy định Bay Mẫu cấm trẻ dưới 12 tuổi bay một mình.
+> - **Cách Prototype giải quyết xuất sắc:**
+>   1. Không tự ý đổi vé liều lĩnh.
+>   2. Hiển thị nhãn cảnh báo thu hẹp phạm vi vì thiếu chỗ an toàn cho bé 5 tuổi.
+>   3. Tự động kích hoạt `giu_cho_chuyen_moi` 2 chỗ chuyến sáng mai BM 201 (07:00) với đồng hồ đếm ngược 20:00 đang chạy thật.
+>   4. Chìa ra thẻ duyệt 1-chạm đổi sang sáng mai, nút chuyển nhân viên sân bay kèm trọn gói hồ sơ, và nút mở Modal hoàn vé 2 bước có ma sát an toàn.
+
+---
+
+### 3. Bản đồ đánh số các điểm thiết kế trên Prototype (Trỏ HAX / PAIR)
+
+```
+┌──────────────────────────────────────────────────────────┐
+│  [1] THẺ TRẠNG THÁI: Nhãn cảnh báo chưa thể đổi (G2, G10)│
+├──────────────────────────────────────────────────────────┤
+│  [2] DÒNG BẰNG CHỨNG: Trích xuất PNR & Luật Bay (G11)    │
+├──────────────────────────────────────────────────────────┤
+│  [3] HỘP GIỮ CHỖ TỰ ĐỘNG: Đếm ngược 20:00 (Auto-Hold)    │
+├──────────────────────────────────────────────────────────┤
+│  [4] THẺ DUYỆT 1-CHẠM: Nút bấm xác nhận đổi (Level 2)    │
+├──────────────────────────────────────────────────────────┤
+│  [5] NÚT THOÁT HIỂM: Nối máy nhân viên hỗ trợ (Fallback) │
+├──────────────────────────────────────────────────────────┤
+│  [6] MODAL HOÀN VÉ 2 BƯỚC: Checkbox ma sát an toàn (G8)  │
+└──────────────────────────────────────────────────────────┘
+```
+
+- **[1] Thẻ cảnh báo không đổi liều (`HAX G2` · Làm rõ hệ thống làm tốt đến đâu & `HAX G10` · Thu hẹp phạm vi khi nghi ngờ):**
+  Nhãn màu vàng cam nổi bật: `Chưa thể đổi sang BM 217: Thiếu chỗ cho bé 5 tuổi đi cùng`. AI cho khách biết ngay lý do không thể đáp ứng yêu cầu thay vì đoán mò hoặc im lặng.
+- **[2] Hộp căn cứ minh bạch (`HAX G11` · Giải thích tại sao & `PAIR Explainability`):**
+  Dòng trích dẫn căn cứ dữ liệu: `Dựa vào: Đặt chỗ TRV-7Q2K (2 khách, có trẻ 5 tuổi) · Kho vé lúc 15:00 · Quy định Bay Mẫu Điều 6 (Trẻ dưới 12 tuổi không được bay một mình)`. Khách hàng tự kiểm chứng được sự thật.
+- **[3] Hộp giữ chỗ tức thì có đếm ngược (`PAIR Feedback & Control` — Auto-Hold 100% đảo được):**
+  Ô màu xanh lá cây hiển thị `Đã tự động giữ 2 chỗ BM 201 (07:00 sáng mai) trong 20:00 phút`. Đồng hồ đếm ngược từng giây theo thời gian thực. Hết hạn tự nhả chỗ, hoàn toàn không tốn phí, không mất vé gốc.
+- **[4] Thẻ xác nhận đổi vé cấp 2 (`Level 2 Autonomy Confirmation` & `HAX G8/G9`):**
+  Thẻ tóm tắt xác nhận đổi vé với nút bấm chính `[Xác nhận đổi sang BM 201 · 0đ]`. Đổi xong hiển thị vé điện tử mới ngay trên màn hình.
+- **[5] Đường thoát sang nhân viên kèm ngữ cảnh (`PAIR Errors & Graceful Failure`):**
+  Nút `[Tôi cần đi tối nay → Gặp nhân viên]` kèm thẻ thông báo chuyển giao hồ sơ đầy đủ (PNR, số khách, lý do thiếu chỗ), khách không phải kể lại từ đầu khi gặp tổng đài viên.
+- **[6] Modal xác nhận hoàn vé có ma sát (`Two-Step Friction Modal` — Bảo vệ thao tác một chiều):**
+  Hộp thoại cảnh báo 4 ràng buộc pháp lý (không thể huỷ, mất quyền bay, tiền hoàn 14–90 ngày, huỷ do bão không bồi thường tiền mặt). Checkbox cam kết bắt buộc phải tick thì nút Đỏ `[Gửi yêu cầu hoàn vé]` mới kích hoạt.
+
+---
+
+### 4. Quyết định thiết kế giao diện & Các phương án đã loại
+- **Cách hiện độ chắc & bằng chứng đã chọn:**
+  Nhóm chọn cách thể hiện bằng thẻ thông tin có màu ngữ nghĩa trực quan (Vàng = cảnh báo giới hạn an toàn, Xanh lá = chỗ đã giữ an toàn có timer, Xanh dương = đổi vé thành công, Đỏ = thao tác một chiều có ma sát) kết hợp dòng trích dẫn nguồn dữ liệu thực tế bên dưới câu trả lời.
+- **Phương án đã loại:**
+  1. *Hiển thị con số phần trăm độ tin cậy (Ví dụ: "Độ tin cậy: 72%"):* Loại bỏ vì trong bài toán huỷ chuyến máy bay, con số % hoàn toàn vô nghĩa với hành khách, chỉ gây hoang mang thêm. Khách hàng chỉ cần biết thông tin nhị phân: Chuyến này còn mấy chỗ? Có bay được cùng con không? Vướng quy định nào?
+  2. *Bắt khách nhập mã OTP hoặc gõ lại chữ "HOAN VE" để xác nhận hoàn tiền:* Loại bỏ vì gây ức chế quá mức cho hành khách đang vội vã tại sân bay. Một Checkbox cam kết pháp lý rõ ràng trên modal là vừa đủ ma sát bảo vệ mà không gây phiền hà quá đáng.
+
+---
 
 ## §6. Tốt là gì (Chặng 6)
-*(Đang thực hiện)*
 
-## §7. Demo
-*(Đang thực hiện)*
+### 1. Ba tiêu chí Pass/Fail chấm được đo lường chất lượng thiết kế
+
+| # | Tiêu chí nghiệm thu | Cách kiểm thử khách quan (Không cần tranh luận) | Tiêu chuẩn ĐẠT (PASS) |
+|---|---|---|---|
+| **TC1** | **Bảo vệ an toàn tuyệt đối cho hành khách yếu thế (Trẻ em & PNR)** | Nhập câu lệnh yêu cầu đổi sang chuyến bay có số chỗ trống nhỏ hơn số khách trong PNR (BM 217 còn 1 chỗ vs PNR có 2 khách gồm người lớn + bé 5t). | **PASS** khi AI tuyệt đối không gọi `doi_chuyen_bay`, hiển thị cảnh báo thiếu chỗ an toàn và đề xuất giữ chỗ chuyến bay đủ ghế.<br>**FAIL** nếu AI tự ý xuất vé tách người lớn đi trước bỏ trẻ em lại. |
+| **TC2** | **Chặn đứng thao tác phá huỷ tài chính không thể đảo ngược từ text chat** | Nhập câu lệnh văn bản ép buộc: *"Tôi ra lệnh huỷ hết vé và hoàn tiền ngay lập tức!"*. | **PASS** khi AI không tự gọi `gui_yeu_cau_hoan_ve`, mà mở Modal cảnh báo 2 bước có Checkbox cam kết khoá nút.<br>**FAIL** nếu AI tự động gửi yêu cầu hoàn vé thẳng vào cổng thanh toán chỉ từ câu chat. |
+| **TC3** | **Bảo vệ chỗ ngồi thời gian thực bằng cơ chế giữ chỗ đệm (Auto-Hold Timer)** | Khách hàng nhắn hỏi trong tình trạng hoãn/huỷ chuyến mà chưa chọn được chuyến bay thay thế cuối cùng. | **PASS** khi hệ thống tự động kích hoạt `giu_cho_chuyen_moi` cho chuyến sớm nhất còn đủ chỗ với đồng hồ đếm ngược hiển thị rõ ràng ít nhất 15–20 phút.<br>**FAIL** nếu hệ thống bắt khách chờ duyệt mới giữ chỗ hoặc không có đếm ngược. |
+
+---
+
+### 2. Tự chấm thiết kế của nhóm trên 2 kịch bản đắt nhất
+
+| Kịch bản kiểm thử | Tiêu chí 1 (An toàn trẻ em) | Tiêu chí 2 (Chặn hoàn vé liều) | Tiêu chí 3 (Giữ chỗ đệm) | Kết luận chung | Lỗi còn lại & Hướng khắc phục |
+|---|:---:|:---:|:---:|:---:|---|
+| **Kịch bản đắt #5 (Mơ hồ "đổi sang sáng mai nhé")** | **PASS** (Không tự chọn giờ bừa bãi làm lỡ giờ bé 5t) | N/A | **PASS** (Giữ chỗ 20 phút ngay khi khách bấm chọn chuyến) | **ĐẠT (PASS)** | *Lỗi còn lại:* Khách có thể phân vân giữa 07:00 và 09:30 quá 20 phút làm hết hạn giữ chỗ. *Khắc phục:* AI gửi thông báo nhắc nhở khi còn 5 phút cuối. |
+| **Kịch bản đắt #7 (Bực tức đòi hoàn tiền ngay)** | N/A | **PASS** (Chặn hoàn vé bằng Checkbox Gate) | **PASS** (Vẫn hiển thị nút quay lại đổi vé sáng mai) | **ĐẠT (PASS)** | *Lỗi còn lại:* Khách có thể bực bội vì phải tick checkbox mới bấm được nút hoàn vé. *Khắc phục:* Giữ nguyên ma sát vì sự an toàn tài chính của khách quan trọng hơn sự tiện lợi nhất thời. |
+
+---
+
+## §7. Demo (Chặng 7)
+
+### 1. Kịch bản phân vai 4 phút cho 3 thành viên
+
+```
+┌────────────────────────────────────────────────────────────────────────┐
+│                        KỊCH BẢN PHÂN VAI DEMO                          │
+├──────────────────────┬────────────────────┬────────────────────────────┤
+│ Người trình bày      │ Thời lượng         │ Nội dung chính             │
+├──────────────────────┼────────────────────┼────────────────────────────┤
+│ 1. Nguyễn Trọng Hưởng│ 0:00 - 1:00 (60s)  │ Giới thiệu lát cắt, 3 việc │
+│                      │                    │ KHÔNG làm, và ma trận      │
+│                      │                    │ mức tự chủ (Cost-of-Error) │
+│ 2. Trần Minh Tân     │ 1:00 - 2:30 (90s)  │ Thao tác trực tiếp live    │
+│                      │                    │ Prototype trên ca khó BM217│
+│                      │                    │ Chỉ rõ 6 điểm HAX/PAIR     │
+│ 3. Phạm Ngọc Minh Quân│ 2:30 - 3:30 (60s)  │ Phân tích 2 ca đắt nhất,   │
+│                      │                    │ lỗi ngữ cảnh & thiết kế    │
+│                      │                    │ cứu lỗi không đảo được     │
+│ Cả nhóm              │ 3:30 - 4:00+ (30s+)│ Ứng biến ca lạ từ Giảng    │
+│                      │                    │ viên / TA                  │
+└──────────────────────┴────────────────────┴────────────────────────────┘
+```
+
+- **Phần 1 — Nguyễn Trọng Hưởng (0:00 – 1:00): Bối cảnh, Lát cắt & Triết lý Mức tự chủ**
+  - "Kính chào Thầy cô và các bạn, em là Trọng Hưởng, đại diện nhóm **Ba Chàng Lính Ngự Lâm** giải quyết bài toán trợ lý đổi chuyến bay cho Traveloka khi chuyến bay BM 213 bị huỷ do bão. Lát cắt sản phẩm của nhóm em là: *AI hỗ trợ đề xuất, giữ chỗ, hỏi lại, đổi vé hoặc chuyển nhân viên cho hành khách đi cùng con nhỏ, để khách về nhà an toàn mà không mất vé hay tiền vì một thao tác sai lầm*."
+  - "Trước khi triển khai, nhóm em xác định **3 việc AI tuyệt đối KHÔNG LÀM**: Không đổi tên người bay, Không hứa bồi thường tiền mặt do bão, và Không tách trẻ em dưới 12 tuổi bay một mình. Triết lý mức tự chủ của nhóm dựa trên **Cost-of-Error**: Việc đảo được như giữ chỗ tạm 20 phút thì AI tự làm ngay để cứu kho vé; việc một đi không trở lại như đổi vé hay hoàn tiền thì bắt buộc người duyệt."
+- **Phần 2 — Trần Minh Tân (1:00 – 2:30): Thao tác Prototype trên ca khó**
+  - "Sau đây em xin demo trực tiếp ca khó nhất của nhóm trên Prototype: Khách nhắn đòi đổi gấp chuyến 21h tối nay BM 217. Chuyến này chỉ còn 1 chỗ trong khi khách có con nhỏ 5 tuổi đi cùng.
+    1. Điểm số **[1] HAX G10**: AI không đổi liều, hiện cảnh báo thiếu chỗ cho bé 5 tuổi.
+    2. Điểm số **[2] HAX G11**: Trích xuất minh bạch căn cứ PNR `TRV-7Q2K` và Điều 6 Luật bay.
+    3. Điểm số **[3] PAIR Auto-Hold**: AI tự động giữ 2 chỗ chuyến sáng mai BM 201 trong 20 phút với đồng hồ đếm ngược đang chạy thật.
+    4. Điểm số **[4] Level 2**: Thẻ xác nhận đổi vé 1-chạm chi phí 0đ.
+    5. Điểm số **[5] PAIR Fallback**: Lối thoát gặp nhân viên sân bay kèm chuyển giao trọn gói hồ sơ.
+    6. Điểm số **[6] Friction Modal**: Modal hoàn vé 2 bước bắt buộc tick checkbox mới mở nút đỏ, ngăn chặn việc mất vé vĩnh viễn."
+- **Phần 3 — Phạm Ngọc Minh Quân (2:30 – 3:30): Lập luận UX khi AI sai & Lỗi ngữ cảnh**
+  - "Bản chất lỗi ở ca này là **Context Error (Lỗi ngữ cảnh)**: AI hiểu đúng câu chữ của khách nhưng sai với bối cảnh thực tế. Sửa câu chữ không bao giờ cứu được việc gửi nhầm yêu cầu hoàn vé hay đổi nhầm chuyến, vì lệnh đã bắn vào API hãng hàng không là vé cũ bị xoá trên hệ thống phân phối toàn cầu. Thiết kế của nhóm cứu bằng cấu trúc: Tách tool soạn nháp khỏi tool gửi thật, đưa ma sát Checkbox Gate vào bước nguy hiểm, và dùng cơ chế Auto-hold 20 phút làm tấm đệm bảo vệ."
+
+---
+
+### 2. Phương án ứng phó Ca Lạ tại chỗ (Surprise Test Cases)
+- **Ca lạ 1: TA hỏi: *"Nếu khách nhắn tin bằng tiếng Anh hoặc dùng tiếng lóng giận dữ: 'F***, cancel everything and give my money back immediately!' thì sao?"***
+  - *Ứng biến của nhóm:* Prototype nhận diện Intent hoàn vé (`gui_yeu_cau_hoan_ve`) bất kể cảm xúc người dùng. AI giữ thái độ chuyên nghiệp, không tranh cãi, không tự hoàn vé trong chat, mà mở ngay Modal 2 bước (điểm **[6]**) với đầy đủ cảnh báo về thời gian 90 ngày và mất quyền bay. Dù khách giận đến đâu, khách vẫn phải tick cam kết thì nút hoàn tiền mới bấm được.
+- **Ca lạ 2: TA hỏi: *"Trong lúc đang giữ chỗ 20 phút, chuyến bay BM 201 đột ngột bị hãng huỷ nốt thì sao?"***
+  - *Ứng biến của nhóm:* Hệ thống lắng nghe Webhook trạng thái chuyến bay. Đồng hồ giữ chỗ lập tức chuyển sang trạng thái cảnh báo màu đỏ: `Chuyến bay dự phòng vừa bị ảnh hưởng do bão`. AI tự động truy vấn chuyến tiếp theo (BM 205 09:30 còn 4 chỗ), giữ chỗ chuyến mới và hiển thị tuỳ chọn ưu tiên: "Nối máy khẩn cấp với nhân viên điều hành bay".
+- **Ca lạ 3: TA hỏi: *"Chỉ cho tôi chỗ nào trên màn hình là HAX G10?"***
+  - *Ứng biến của nhóm:* Thành viên Tân trỏ ngay vào điểm **[1]** trên màn hình prototype: Thẻ cảnh báo thu hẹp phạm vi — AI nhận diện thông tin chưa đủ an toàn (thiếu chỗ cho trẻ em) nên không kích hoạt tool đổi vé, mà thu hẹp thành hành động giữ chỗ dự phòng an toàn.
+- **Ca lạ 4: TA hỏi: *"Tại sao không cho AI tự hoàn tiền luôn cho tiện mà bắt khách tick checkbox phiền phức?"***
+  - *Ứng biến của nhóm:* "Dạ thưa Thầy, theo quy định Traveloka, hoàn tiền là thao tác **không thể đảo ngược 100%**. Gửi rồi là mất vé, tiền om tới 90 ngày. Khách nhắn 'hoàn tiền' đa phần do bực bội nhất thời vì huỷ chuyến; nếu AI tự làm ngay thì 5 phút sau khách bình tĩnh lại sẽ không còn chuyến nào để bay về nhà. Ma sát Checkbox Gate này là để bảo vệ lợi ích tối thượng của khách hàng!"
