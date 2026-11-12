@@ -243,7 +243,43 @@ Cùng sử dụng một mô hình AI, nhưng việc thay đổi mức tự chủ
   > → **Giá trị mang lại:** AI gánh vác phần việc chạy đua với thời gian (giữ chỗ 20 phút trước khi kho vé cạn kiệt), nhưng trả lại quyền định đoạt cho hành khách ở những ngã rẽ một chiều không thể đảo ngược. Khách hàng cảm thấy an tâm vì được bảo vệ chứ không cảm thấy bị AI tước đoạt quyền kiểm soát.
 
 ## §5. Prototype (Chặng 5)
-*(Đang thực hiện)*
+
+### 1. File, công cụ và phạm vi
+- **Mở:** [prototype/index.html](prototype/index.html) trực tiếp bằng Chrome/Edge; không cần cài đặt hoặc server.
+- **Hướng dẫn demo:** [prototype/README.md](prototype/README.md).
+- **Công cụ:** HTML/CSS/JavaScript thuần; dữ liệu giả từ fixture T3. Không có lời gọi AI thật, backend, đặt vé, thanh toán hoặc bàn giao thật. Hội thoại được mô phỏng bằng nhánh từ khoá.
+- **Ca demo chính:** #6 — khách muốn đổi cả hai mẹ con sang BM 217 lúc 21:00 nhưng chỉ còn 1 chỗ. Prototype chặn phương án thiếu chỗ, đề xuất chuyến đủ chỗ; sau đó thử câu xác nhận mơ hồ “Ừ, đổi đi” để cho thấy vé chỉ được đổi sau nút duyệt cụ thể. Ca chính khác ca “đổi sang sáng mai” trong mẫu giảng viên.
+- **Nhánh bổ sung:** #5 mơ hồ, #7 hoàn vé có checkbox, #8 trẻ bay một mình, #13 báo đổi nhầm, hết 20 phút giữ chỗ và một ca chọn rõ BM 201.
+
+### 2. Ảnh và điểm trỏ thiết kế
+- [Ảnh 1 — BM 217 thiếu chỗ, hai lựa chọn đủ chỗ](prototype/screenshots/01-family-options.png).
+- [Ảnh 2 — Chốt chặn hoàn vé](prototype/screenshots/02-refund-gate.png).
+- Có thể bật **Hiện chú thích HAX/PAIR** trong bảng điều khiển demo rồi bấm số để mở giải thích và làm nổi bật khu vực tương ứng. Bảng đầy đủ gồm cả điểm ở bước giữ/duyệt:
+
+| Số | Thể hiện gì | Nguyên tắc / mức tự chủ |
+|---|---|---|
+| 1 | PNR, 2 hành khách, tuổi, lý do huỷ, nguồn dữ liệu | PAIR Explainability & Trust; tra cứu tự làm |
+| 2 | Badge Trợ lý AI và giới hạn đổi/hoàn | HAX G1; khách giữ quyền duyệt giao dịch |
+| 3 | BM 217 còn 1 chỗ, không đủ cho 2 người; không tự tách bé | PAIR Explainability; chặn phương án không hợp lệ |
+| 4 | BM 201 / BM 205, ngày giờ và số chỗ; khách chọn riêng | HAX G10; không đoán lựa chọn |
+| 5 | Đồng hồ 20 phút, “Chưa đổi vé”, thẻ duyệt đủ chuyến/người/0đ/cảnh báo | Giữ tự làm; đổi cần khách duyệt; số này xuất hiện khi chọn chuyến |
+| 6 | Huỷ giữ chỗ, chọn lại, gặp nhân viên | HAX G8/G9 + PAIR Graceful Failure; đường lui trước giao dịch |
+| 7 | Cảnh báo hoàn, checkbox khoá nút, lối quay lại đổi miễn phí | PAIR Graceful Failure; hoàn cần khách duyệt nghiêm ngặt |
+
+### 3. Quyết định thiết kế và phương án đã loại
+- **Hỗ trợ trình bày:** 6 thẻ chọn kịch bản giúp chuyển ca trực tiếp; bảng mức tự chủ hiển thị tool vừa mô phỏng và tool đang chờ khách duyệt, không sửa chính sách §4. Các phần này dành riêng cho demo.
+- **So sánh phương án:** hiển thị cả BM 217 bị khoá, kèm “1 chỗ / cần 2” và lý do không tự tách mẹ và bé, thay vì ẩn chuyến không hợp lệ. Hai chuyến đủ chỗ có nút giữ riêng. Chú thích HAX/PAIR bấm được giúp người xem truy ngược quyết định đến vị trí cụ thể.
+- **Bằng chứng:** hiện số chỗ, danh sách khách và dữ liệu đặt chỗ thay cho “AI chắc chắn 95%”; không có căn cứ để tính tỷ lệ tin cậy, còn dữ liệu cụ thể giúp khách tự kiểm tra.
+- **Xác nhận:** chọn thẻ duyệt có chuyến/ngày/giờ/hành khách/chi phí thay cho xác nhận bằng chat. “Ừ, đổi đi” không gọi tool đổi hay gửi hoàn. Hoàn cần thêm checkbox; đóng/quay lại không gửi yêu cầu và xoá đồng thuận cũ.
+- **Tốc độ và an toàn:** giữ 2 chỗ trước khi khách duyệt, đếm ngược thực 20 phút. Có nút tua hết hạn dành riêng cho demo; hết hạn chặn đổi, phải kiểm tra và chọn lại.
+- **Phục hồi:** không có nút hoàn tác vé đã đổi/hoàn đã gửi. Báo đổi nhầm hoặc yêu cầu ngoài thẩm quyền sẽ dừng tự động, tạo bàn giao mô phỏng gồm PNR, hội thoại và trạng thái; không hứa nhân viên thật đã nhận hoặc chắc chắn sửa được.
+- **Tool mở rộng cần đồng bộ khi nhóm hoàn thiện §4:** `huy_giu_cho` mô phỏng nhả chỗ trước hạn khi huỷ/chọn lại/bàn giao; lý do là cho khách đường lui với thao tác giữ chỗ. Tool gốc chỉ bảo đảm tự nhả sau 20 phút. Không nhầm nhả chỗ tạm với hoàn tác đổi vé.
+- **Không bịa dữ liệu thiếu:** không hiển thị số ghế, giờ đến hoặc số tiền hoàn cụ thể. Khoảng 14–90 ngày kế thừa giả định trong spec nhóm, không phải cam kết hãng thật.
+
+### 4. Kiểm thử prototype
+- `node prototype/verify.cjs`: **8 nhóm kiểm tra logic đều đạt**, gồm thiếu chỗ, xác nhận mơ hồ, hết hạn, checkbox/nút gửi, xoá đồng thuận khi quay lại, chuyển người cho trẻ bay một mình, chặn đổi trùng và chặn đổi tiếp sau hoàn.
+- Kiểm thử Chrome qua `python prototype/verify-browser.py`: luồng bấm đổi/hoàn/chuyển người, hết hạn rồi kiểm tra lại, không ghi nhận lỗi JavaScript. Kiểm tra 4 trạng thái ở chiều rộng 390px không tràn ngang; ảnh chụp được lưu trong `prototype/screenshots/`.
+- Giới hạn: chưa kết nối hãng bay/AI thật; chỗ trống cố định theo fixture; chưa kiểm tra mọi trình duyệt hay trình đọc màn hình. Đây là kiểm tra prototype ở §5; bộ 3 tiêu chí nghiệm thu ở §6 được nhóm chốt riêng.
 
 ## §6. Tốt là gì (Chặng 6)
 *(Đang thực hiện)*

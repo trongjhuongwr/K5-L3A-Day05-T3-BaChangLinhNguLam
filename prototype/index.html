@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#115e59">
+  <title>An tâm bay · Trợ lý đổi chuyến</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="demo.css">
+  <script defer src="app.js"></script>
+</head>
+<body>
+  <header class="topbar"><a class="brand" href="index.html"><span class="brand-icon">✈</span> an tâm bay<span class="brand-dot">.</span></a><span class="lab-label">LAB 05 <span> / </span> Ba Chàng Lính Ngự Lâm</span><span class="prototype-badge">Bản mô phỏng · Dữ liệu giả</span></header>
+  <main>
+    <div class="breadcrumb">Đặt chỗ của tôi <span> / </span> TRV-7Q2K <span> / </span> Hỗ trợ chuyến bay</div>
+    <section class="page-heading"><div><div class="eyebrow">ĐỒNG HÀNH KHI KẾ HOẠCH THAY ĐỔI</div><h1>Chuyến bay thay đổi.<br class="mobile-break"> Sự an tâm ở lại.</h1><p>Mình giúp bạn tìm phương án phù hợp cho cả hai mẹ con.</p></div><button class="button secondary" data-action="support">♧ &nbsp; Gặp nhân viên</button></section>
+    <details class="demo-panel demo-toolbar" open><summary>✦ Bảng điều khiển demo <span class="subtle">Chọn một ca để bắt đầu lại phiên mô phỏng</span></summary><div id="scenario-cards" class="scenario-cards" role="group" aria-label="Chọn kịch bản demo"></div><div class="demo-toolbar-actions"><div class="demo-actions"><button class="button secondary" data-action="reset">↻ Bắt đầu lại ca này</button><button class="button quiet" data-action="expire" id="expire-button" disabled>Tua hết 20 phút</button></div><label class="toggle"><input type="checkbox" id="show-annotations"> Hiện chú thích HAX/PAIR · Bấm số để giải thích</label></div><p class="demo-disclaimer">Các thao tác và bàn giao đều mô phỏng. Không gửi vé, tiền hay thông báo thật.</p></details>
+    <details class="tool-panel" id="tool-panel"><summary>Mức tự chủ & hoạt động công cụ <span class="subtle">Dành cho người trình bày · Bấm để mở</span></summary><p id="tool-activity" aria-live="polite"></p><div class="tool-table-wrap"><table class="tool-table"><thead><tr><th>Công cụ</th><th>Quyền thực hiện</th><th>Vì sao / điều kiện</th><th>Trạng thái</th></tr></thead><tbody id="tool-matrix"></tbody></table></div></details>
+    <section class="workspace">
+      <aside class="booking">
+        <div class="card booking-card"><div class="section-label">ĐẶT CHỖ CỦA BẠN <span class="annotation">1</span></div><div class="booking-code">TRV-7Q2K <span class="badge neutral">2 hành khách</span></div><div class="route"><div><strong>HAN</strong><span>Hà Nội</span></div><div class="route-line">──── ✈ ────</div><div><strong>SGN</strong><span>TP. Hồ Chí Minh</span></div></div><div class="original-flight"><span>BM 213 · 12/11/2026 · 19:00</span><span class="badge red" id="booking-status">Đã huỷ do bão</span></div><div class="passengers"><div><span class="avatar">A</span><div><strong>Nguyễn Minh An</strong><small>Người lớn · 34 tuổi</small></div></div><div><span class="avatar child">B</span><div><strong>Nguyễn Gia Bình</strong><small>Trẻ em · 5 tuổi · đi cùng người lớn</small></div></div></div><div class="benefit"><span>✓</span><div><strong id="benefit-title">Còn 1 lần đổi miễn phí</strong><small>Trong 48 giờ theo chính sách Bay Mẫu</small></div></div><div class="source">◉ Dữ liệu đặt chỗ & chính sách Bay Mẫu<br><span>Mốc dữ liệu giả: 15:00 · 12/11/2026</span></div></div>
+        <div class="care-note"><span>♡</span><div><strong>Giữ cả nhà trên cùng hành trình</strong><p>Mình kiểm tra đủ chỗ cho 2 người. Yêu cầu để bé bay một mình sẽ được nhân viên hỗ trợ riêng.</p></div></div>
+      </aside>
+      <section class="card assistant-card" aria-label="Trợ lý hỗ trợ chuyến bay"><div class="assistant-header"><div class="assistant-avatar">✦</div><div><h2>Trợ lý An Tâm <span class="badge mint">Trợ lý AI</span> <span class="annotation">2</span></h2><p><span class="online-dot"></span> Sẵn sàng đồng hành cùng bạn</p></div></div><div class="capability">AI tra cứu & giữ chỗ tạm thời. <strong>Chỉ đổi vé hoặc gửi hoàn tiền khi bạn bấm xác nhận.</strong></div><ol class="progress" aria-label="Tiến trình"><li id="step-1" class="active"><span>1</span> Tìm phương án</li><li id="step-2"><span>2</span> Kiểm tra & duyệt</li><li id="step-3"><span>3</span> Hoàn tất</li></ol><div id="conversation" class="conversation" aria-live="polite"></div><div id="action-area" class="action-area"></div><form id="chat-form" class="chat-form"><label class="sr-only" for="message">Nhắn với trợ lý</label><input id="message" name="message" placeholder="Bạn muốn thay đổi điều gì?" autocomplete="off" maxlength="500"><button class="send-button" type="submit" aria-label="Gửi tin nhắn">↑</button></form><div class="chat-hint">Tin nhắn “đồng ý” không thay thế nút xác nhận đổi / hoàn vé.</div></section>
+    </section>
+    <details class="audit-panel"><summary>Nhật ký mô phỏng công cụ <span id="log-count"></span></summary><p>Dành cho phần trình bày mức tự chủ; không phải giao dịch thật.</p><ol id="audit-log"></ol></details>
+    <footer><span>an tâm bay<span class="brand-dot">.</span> <span class="footer-copy">Bạn quyết định. Mình đồng hành.</span></span><span>Prototype T3 · Không liên kết với hãng bay hay Traveloka</span></footer>
+  </main>
+  <dialog id="annotation-dialog" aria-labelledby="annotation-title"><div class="annotation-dialog-header"><span class="eyebrow">GIẢI THÍCH THIẾT KẾ · HAX / PAIR</span><button class="button quiet" id="close-annotation" aria-label="Đóng giải thích">✕</button></div><h2 id="annotation-title"></h2><p id="annotation-description"></p><div class="annotation-rule" id="annotation-rule"></div><p class="subtle">Đóng thẻ để xem vùng vừa được làm nổi bật trên giao diện.</p></dialog>
+</body>
+</html>
