@@ -1,0 +1,1756 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI Agent UX Testing Lab · Track T3 — Đổi chuyến bay</title>
+  <style>
+    :root {
+      --bg: #f1f5f9;
+      --surface: #ffffff;
+      --surface-alt: #f8fafc;
+      --ink: #0f172a;
+      --ink-secondary: #475569;
+      --ink-muted: #64748b;
+      --border: #e2e8f0;
+      --border-strong: #cbd5e1;
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --primary-soft: #eef2ff;
+      --emerald: #059669;
+      --emerald-soft: #ecfdf5;
+      --amber: #d97706;
+      --amber-soft: #fffbeb;
+      --rose: #dc2626;
+      --rose-soft: #fef2f2;
+      --sky: #0284c7;
+      --sky-soft: #f0f9ff;
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
+      --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.06);
+      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--ink);
+      font-size: 14px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Top Experiment Control Bar */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 24px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-badge {
+      background: var(--primary);
+      color: #fff;
+      font-weight: 700;
+      font-size: 12px;
+      padding: 4px 8px;
+      border-radius: 6px;
+      letter-spacing: 0.03em;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .brand p {
+      margin: 0;
+      font-size: 12px;
+      color: var(--ink-muted);
+    }
+
+    .controls-group {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .segmented {
+      display: inline-flex;
+      background: var(--bg);
+      padding: 3px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+    }
+
+    .segmented button {
+      border: 0;
+      background: transparent;
+      color: var(--ink-secondary);
+      padding: 6px 12px;
+      font-size: 12.5px;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .segmented button.active {
+      background: var(--surface);
+      color: var(--primary);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      border: 1px solid var(--border-strong);
+      background: var(--surface);
+      color: var(--ink);
+      padding: 7px 13px;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      font-family: inherit;
+    }
+
+    .btn:hover:not(:disabled) {
+      background: var(--surface-alt);
+      border-color: var(--ink-muted);
+    }
+
+    .btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: var(--primary-hover);
+      border-color: var(--primary-hover);
+    }
+
+    .btn-emerald {
+      background: var(--emerald);
+      border-color: var(--emerald);
+      color: #fff;
+    }
+
+    .btn-emerald:hover:not(:disabled) {
+      background: #047857;
+    }
+
+    .btn-danger {
+      background: var(--rose);
+      border-color: var(--rose);
+      color: #fff;
+    }
+
+    .btn-danger:hover:not(:disabled) {
+      background: #b91c1c;
+    }
+
+    .btn-ghost {
+      border-color: transparent;
+      background: transparent;
+      color: var(--ink-secondary);
+    }
+
+    .btn-ghost:hover:not(:disabled) {
+      background: var(--bg);
+    }
+
+    /* Scenario Bar */
+    .scenario-strip {
+      max-width: 1360px;
+      margin: 16px auto 0;
+      padding: 0 24px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .scenario-label {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--ink-muted);
+      margin-right: 4px;
+    }
+
+    .scenario-pill {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--ink-secondary);
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .scenario-pill.active {
+      background: var(--ink);
+      color: #fff;
+      border-color: var(--ink);
+    }
+
+    /* Main Grid */
+    .workspace {
+      max-width: 1360px;
+      margin: 16px auto 32px;
+      padding: 0 24px;
+      display: grid;
+      grid-template-columns: 1fr 400px;
+      gap: 20px;
+      align-items: start;
+    }
+
+    .workspace.research-hidden {
+      grid-template-columns: 1fr;
+      max-width: 920px;
+    }
+
+    @media (max-width: 1024px) {
+      .workspace {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+    }
+
+    /* Experiment Context Header */
+    .context-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+    }
+
+    .context-top {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .task-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      padding: 3px 9px;
+      border-radius: 999px;
+      background: var(--primary-soft);
+      color: var(--primary);
+      margin-bottom: 6px;
+    }
+
+    .context-title {
+      margin: 0 0 4px;
+      font-size: 17px;
+      font-weight: 700;
+    }
+
+    .context-desc {
+      margin: 0;
+      color: var(--ink-secondary);
+      font-size: 13.5px;
+    }
+
+    .booking-chip {
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 10px 14px;
+      font-size: 12.5px;
+      min-width: 260px;
+    }
+
+    .booking-chip-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11.5px;
+      font-weight: 700;
+    }
+
+    .status-cancelled { background: var(--rose-soft); color: var(--rose); }
+    .status-hold { background: var(--amber-soft); color: var(--amber); }
+    .status-done { background: var(--emerald-soft); color: var(--emerald); }
+    .status-handoff { background: var(--sky-soft); color: var(--sky); }
+
+    /* Stepper */
+    .stepper {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px dashed var(--border);
+      overflow-x: auto;
+    }
+
+    .step-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--ink-muted);
+      white-space: nowrap;
+    }
+
+    .step-dot {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--bg);
+      border: 1px solid var(--border-strong);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .step-item.done .step-dot {
+      background: var(--emerald);
+      border-color: var(--emerald);
+      color: #fff;
+    }
+
+    .step-item.active {
+      color: var(--primary);
+      font-weight: 700;
+    }
+
+    .step-item.active .step-dot {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
+    }
+
+    .step-line {
+      flex: 1;
+      min-width: 16px;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* Variant Banner */
+    .variant-banner {
+      padding: 10px 20px;
+      background: var(--surface-alt);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 12.5px;
+    }
+
+    .variant-pill {
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    /* Chat & Action Stream */
+    .chat-stream {
+      padding: 20px;
+      min-height: 400px;
+      max-height: 540px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      background: #fcfdff;
+    }
+
+    .msg {
+      display: flex;
+      flex-direction: column;
+      max-width: 88%;
+      animation: fadeIn 0.2s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .msg.user {
+      align-self: flex-end;
+      align-items: flex-end;
+    }
+
+    .msg.ai {
+      align-self: flex-start;
+      align-items: flex-start;
+      width: 100%;
+      max-width: 94%;
+    }
+
+    .msg-meta {
+      font-size: 11.5px;
+      color: var(--ink-muted);
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .ai-badge {
+      background: var(--ink);
+      color: #fff;
+      font-size: 10.5px;
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 4px;
+    }
+
+    .bubble {
+      padding: 12px 15px;
+      border-radius: var(--radius-md);
+      font-size: 13.5px;
+    }
+
+    .msg.user .bubble {
+      background: var(--primary);
+      color: #fff;
+      border-bottom-right-radius: 4px;
+    }
+
+    .msg.ai .bubble {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--ink);
+      border-top-left-radius: 4px;
+      width: 100%;
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* Action & Decision Visualization Card inside AI message */
+    .decision-box {
+      margin-top: 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      background: var(--surface-alt);
+      padding: 12px 14px;
+      font-size: 12.5px;
+    }
+
+    .decision-box.warn {
+      background: var(--amber-soft);
+      border-color: #fde68a;
+    }
+
+    .decision-box.danger {
+      background: var(--rose-soft);
+      border-color: #fecaca;
+    }
+
+    .decision-box.success {
+      background: var(--emerald-soft);
+      border-color: #a7f3d0;
+    }
+
+    .decision-header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
+
+    .rev-tag {
+      font-size: 11px;
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-weight: 700;
+    }
+
+    .rev-yes { background: var(--emerald-soft); color: var(--emerald); }
+    .rev-hard { background: var(--amber-soft); color: var(--amber); }
+    .rev-no { background: var(--rose-soft); color: var(--rose); }
+
+    .why-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 8px;
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid rgba(15, 23, 42, 0.08);
+    }
+
+    .why-item strong {
+      display: block;
+      font-size: 11px;
+      text-transform: uppercase;
+      color: var(--ink-muted);
+      letter-spacing: 0.03em;
+    }
+
+    /* Flight Option Cards */
+    .flight-options {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .flight-card {
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 12px;
+      background: var(--surface);
+      transition: all 0.15s;
+    }
+
+    .flight-card.selected {
+      border-color: var(--primary);
+      background: var(--primary-soft);
+    }
+
+    .flight-card.disabled {
+      opacity: 0.65;
+      background: var(--surface-alt);
+    }
+
+    .flight-code {
+      font-weight: 700;
+      font-size: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .flight-meta {
+      font-size: 12px;
+      color: var(--ink-secondary);
+      margin: 4px 0 10px;
+    }
+
+    .action-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    /* Checkbox Gate */
+    .gate-box {
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: var(--radius-sm);
+      background: #fff;
+      border: 1px solid #fca5a5;
+    }
+
+    .gate-check {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--ink);
+      cursor: pointer;
+    }
+
+    .gate-check input {
+      margin-top: 3px;
+      width: 16px;
+      height: 16px;
+      accent-color: var(--rose);
+    }
+
+    /* Input Area */
+    .composer {
+      padding: 14px 20px;
+      border-top: 1px solid var(--border);
+      background: var(--surface);
+    }
+
+    .quick-prompts {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .chip-btn {
+      border: 1px solid var(--border);
+      background: var(--surface-alt);
+      color: var(--ink-secondary);
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .chip-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: var(--primary-soft);
+    }
+
+    .input-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .input-row input {
+      flex: 1;
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-sm);
+      padding: 9px 12px;
+      font-size: 13.5px;
+      font-family: inherit;
+      outline: none;
+    }
+
+    .input-row input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+    }
+
+    /* Right Panel: Inspector & Feedback */
+    .side-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface-alt);
+    }
+
+    .tab-btn {
+      flex: 1;
+      border: 0;
+      background: transparent;
+      padding: 11px 10px;
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--ink-muted);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      font-family: inherit;
+    }
+
+    .tab-btn.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+      background: var(--surface);
+    }
+
+    .tab-body {
+      padding: 16px;
+    }
+
+    .tab-pane {
+      display: none;
+    }
+
+    .tab-pane.active {
+      display: block;
+    }
+
+    /* Feedback Form */
+    .likert-group {
+      margin-bottom: 14px;
+    }
+
+    .likert-label {
+      display: block;
+      font-size: 12.5px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .likert-scale {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 6px;
+    }
+
+    .likert-scale label {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6px 4px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+      background: var(--surface-alt);
+    }
+
+    .likert-scale input {
+      margin-bottom: 2px;
+      accent-color: var(--primary);
+    }
+
+    .likert-scale label:has(input:checked) {
+      border-color: var(--primary);
+      background: var(--primary-soft);
+      color: var(--primary);
+      font-weight: 700;
+    }
+
+    textarea {
+      width: 100%;
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-sm);
+      padding: 8px 10px;
+      font-family: inherit;
+      font-size: 13px;
+      resize: vertical;
+    }
+
+    /* Telemetry & Tables */
+    .metric-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .metric-box {
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px;
+    }
+
+    .metric-val {
+      font-size: 18px;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .metric-lbl {
+      font-size: 11.5px;
+      color: var(--ink-muted);
+    }
+
+    .log-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 240px;
+      overflow-y: auto;
+    }
+
+    .log-item {
+      font-size: 12px;
+      padding: 8px 10px;
+      border-radius: 6px;
+      background: var(--surface-alt);
+      border-left: 3px solid var(--primary);
+    }
+
+    .log-item code {
+      font-family: var(--mono);
+      font-size: 11.5px;
+      background: rgba(15, 23, 42, 0.06);
+      padding: 1px 4px;
+      border-radius: 3px;
+    }
+
+    .mini-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    .mini-table th, .mini-table td {
+      padding: 7px 6px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+    }
+
+    .mini-table th {
+      color: var(--ink-muted);
+      font-weight: 600;
+    }
+
+    .timer-pill {
+      font-family: var(--mono);
+      font-weight: 700;
+      color: var(--amber);
+    }
+
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+  <!-- TOP EXPERIMENT CONTROLS -->
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-badge">UX LAB · T3</span>
+      <div>
+        <h1>AI Agent User Testing Prototype — Đổi chuyến bay</h1>
+        <p>Đánh giá mức độ hiểu, tin tưởng và kiểm soát của người dùng qua 3 mức tự chủ</p>
+      </div>
+    </div>
+
+    <div class="controls-group">
+      <div class="segmented" role="group" aria-label="Chọn Variant">
+        <button data-variant="A">Variant A · Đề xuất</button>
+        <button data-variant="B" class="active">Variant B · Phối hợp</button>
+        <button data-variant="C">Variant C · Tự chủ</button>
+      </div>
+      <button class="btn" id="btnReset">↺ Reset kịch bản</button>
+      <button class="btn" id="btnToggleResearch">Ẩn bảng nghiên cứu</button>
+    </div>
+  </header>
+
+  <!-- SCENARIO SELECTOR -->
+  <div class="scenario-strip">
+    <span class="scenario-label">Kịch bản kiểm thử:</span>
+    <button class="scenario-pill active" data-scenario="1">1. Luồng chuẩn (Rõ ràng)</button>
+    <button class="scenario-pill" data-scenario="2">2. Yêu cầu mơ hồ (#5)</button>
+    <button class="scenario-pill" data-scenario="3">3. Tác động cao — Hoàn vé (#7)</button>
+    <button class="scenario-pill" data-scenario="4">4. Lỗi & Khôi phục (#13)</button>
+  </div>
+
+  <!-- MAIN WORKSPACE -->
+  <main class="workspace" id="workspace">
+
+    <!-- LEFT: EXPERIMENT WORKSPACE & INTERACTION AREA -->
+    <section class="card">
+      <div class="context-header">
+        <div class="context-top">
+          <div>
+            <span class="task-tag" id="scenarioTag">Kịch bản 1 · Normal Flow</span>
+            <h2 class="context-title" id="scenarioTitle">Đổi chuyến bay khi thông tin rõ ràng</h2>
+            <p class="context-desc" id="scenarioDesc">Nhiệm vụ: Đổi vé cho 2 mẹ con sang chuyến BM 205 (09:30 sáng mai) mà vẫn giữ quyền kiểm soát phù hợp.</p>
+          </div>
+
+          <div class="booking-chip">
+            <div class="booking-chip-row">
+              <strong>Đặt chỗ TRV-7Q2K</strong>
+              <span class="status-badge status-cancelled" id="bookingStatusBadge">BM 213 ĐÃ HUỶ (Bão)</span>
+            </div>
+            <div style="color: var(--ink-secondary)">Hành khách: <b>Nguyễn Minh An</b> & <b>Gia Bình (5t)</b></div>
+            <div style="color: var(--ink-muted); margin-top: 2px;">
+              Quyền lợi: Đổi miễn phí <b id="quotaVal">1/1</b> (48h)
+              <span id="holdTimerWrap" class="hidden"> · Giữ chỗ: <span class="timer-pill" id="holdTimer">20:00</span></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Business State Stepper -->
+        <div class="stepper" id="stepper"></div>
+      </div>
+
+      <!-- Active Variant Behavior Summary -->
+      <div class="variant-banner">
+        <div>
+          <span class="variant-pill" id="variantLabel">Variant B — Human-in-the-loop:</span>
+          <span id="variantRule">AI tự tra cứu và giữ chỗ tạm thời (đảo được), nhưng luôn hỏi xác nhận trước khi xuất vé hoặc hoàn tiền.</span>
+        </div>
+        <button class="btn btn-ghost" style="padding: 3px 8px; font-size: 12px;" id="btnNextScenario">Kịch bản tiếp theo →</button>
+      </div>
+
+      <!-- Conversation & Action Visualization Stream -->
+      <div class="chat-stream" id="chatStream"></div>
+
+      <!-- User Input & Quick Actions -->
+      <div class="composer">
+        <div class="quick-prompts" id="quickPrompts"></div>
+        <div class="input-row">
+          <input type="text" id="chatInput" placeholder="Nhập tin nhắn thử nghiệm (hoặc bấm gợi ý phía trên)...">
+          <button class="btn btn-primary" id="btnSend">Gửi</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- RIGHT: ACTION TRANSPARENCY, USER FEEDBACK & RESEARCH LOG -->
+    <aside class="card side-panel" id="researchPanel">
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="feedback">1. Phản hồi UX</button>
+        <button class="tab-btn" data-tab="inspector">2. Dữ liệu & Tool</button>
+        <button class="tab-btn" data-tab="telemetry">3. Chỉ số Lab</button>
+      </div>
+
+      <div class="tab-body">
+        <!-- TAB 1: USER FEEDBACK -->
+        <div class="tab-pane active" id="tab-feedback">
+          <p style="margin-top:0; font-size:12.5px; color:var(--ink-secondary)">
+            Sau khi hoàn tất hoặc dừng kịch bản hiện tại, vui lòng đánh giá trải nghiệm với <b>Variant <span class="fb-var">B</span></b>:
+          </p>
+
+          <form id="feedbackForm">
+            <div class="likert-group">
+              <span class="likert-label">1. Bạn hiểu rõ AI đang làm gì & lý do đằng sau không?</span>
+              <div class="likert-scale">
+                <label><input type="radio" name="understand" value="1">1</label>
+                <label><input type="radio" name="understand" value="2">2</label>
+                <label><input type="radio" name="understand" value="3">3</label>
+                <label><input type="radio" name="understand" value="4">4</label>
+                <label><input type="radio" name="understand" value="5" required>5</label>
+              </div>
+            </div>
+
+            <div class="likert-group">
+              <span class="likert-label">2. Mức độ tin tưởng vào quyết định của AI?</span>
+              <div class="likert-scale">
+                <label><input type="radio" name="trust" value="1">1</label>
+                <label><input type="radio" name="trust" value="2">2</label>
+                <label><input type="radio" name="trust" value="3">3</label>
+                <label><input type="radio" name="trust" value="4">4</label>
+                <label><input type="radio" name="trust" value="5" required>5</label>
+              </div>
+            </div>
+
+            <div class="likert-group">
+              <span class="likert-label">3. Bạn cảm thấy quyền kiểm soát của mình thế nào?</span>
+              <div class="likert-scale">
+                <label><input type="radio" name="control" value="1">1</label>
+                <label><input type="radio" name="control" value="2">2</label>
+                <label><input type="radio" name="control" value="3">3</label>
+                <label><input type="radio" name="control" value="4">4</label>
+                <label><input type="radio" name="control" value="5" required>5</label>
+              </div>
+            </div>
+
+            <div class="likert-group">
+              <span class="likert-label">4. Mức độ hài lòng chung & kỳ vọng hành vi AI:</span>
+              <div class="likert-scale">
+                <label><input type="radio" name="satisfaction" value="1">1</label>
+                <label><input type="radio" name="satisfaction" value="2">2</label>
+                <label><input type="radio" name="satisfaction" value="3">3</label>
+                <label><input type="radio" name="satisfaction" value="4">4</label>
+                <label><input type="radio" name="satisfaction" value="5" required>5</label>
+              </div>
+            </div>
+
+            <div class="likert-group">
+              <span class="likert-label">Bạn muốn AI chủ động hơn hay thận trọng hơn ở bước nào?</span>
+              <textarea id="fbComment" rows="2" placeholder="Ghi chú ngắn của người tham gia thử nghiệm..."></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width:100%">Lưu phản hồi phiên này</button>
+          </form>
+          <div id="fbSavedNotice" class="decision-box success hidden" style="margin-top:10px">
+            Đã ghi nhận phản hồi vào tab <b>3. Chỉ số Lab</b>!
+          </div>
+        </div>
+
+        <!-- TAB 2: DATA & TOOL INSPECTOR -->
+        <div class="tab-pane" id="tab-inspector">
+          <h4 style="margin:0 0 8px; font-size:13px">Ma trận quyền hạn ở Variant <span class="fb-var">B</span></h4>
+          <table class="mini-table" style="margin-bottom:14px">
+            <thead><tr><th>Công cụ</th><th>Quyền</th><th>Đảo lại?</th></tr></thead>
+            <tbody id="toolMatrixBody"></tbody>
+          </table>
+
+          <h4 style="margin:0 0 8px; font-size:13px">Nhật ký thực thi (Deterministic Log)</h4>
+          <ul class="log-list" id="actionLog"></ul>
+        </div>
+
+        <!-- TAB 3: UX RESEARCH TELEMETRY -->
+        <div class="tab-pane" id="tab-telemetry">
+          <div style="font-size:11.5px; font-weight:700; color:var(--ink-muted); text-transform:uppercase; margin-bottom:6px">
+            Dữ liệu hệ thống tự ghi nhận
+          </div>
+          <div class="metric-grid">
+            <div class="metric-box">
+              <div class="metric-val" id="metTime">0s</div>
+              <div class="metric-lbl">Thời gian thao tác</div>
+            </div>
+            <div class="metric-box">
+              <div class="metric-val" id="metSteps">0</div>
+              <div class="metric-lbl">Lượt tương tác</div>
+            </div>
+            <div class="metric-box">
+              <div class="metric-val" id="metStatus">Đang chạy</div>
+              <div class="metric-lbl">Trạng thái tác vụ</div>
+            </div>
+            <div class="metric-box">
+              <div class="metric-val" id="metIntervene">0</div>
+              <div class="metric-lbl">Lần sửa / can thiệp</div>
+            </div>
+          </div>
+
+          <div style="font-size:11.5px; font-weight:700; color:var(--ink-muted); text-transform:uppercase; margin:12px 0 6px">
+            Cảm nhận chủ quan đã lưu (<span id="savedCount">0</span> phiên)
+          </div>
+          <ul class="log-list" id="savedFeedbackList" style="max-height:130px; margin-bottom:12px">
+            <li class="log-item" style="border-left-color:var(--border-strong); color:var(--ink-muted)">Chưa có phản hồi nào được gửi.</li>
+          </ul>
+
+          <div style="font-size:11.5px; font-weight:700; color:var(--ink-muted); text-transform:uppercase; margin-bottom:4px">
+            Giả thuyết cần kiểm chứng (Chưa kết luận)
+          </div>
+          <div style="font-size:12px; color:var(--ink-secondary); background:var(--surface-alt); padding:8px 10px; border-radius:6px; border:1px solid var(--border)">
+            • <b>H1:</b> Variant B giúp cân bằng tốc độ giữ chỗ và cảm giác an toàn cao hơn Variant A.<br>
+            • <b>H2:</b> Checkbox Gate ở Kịch bản 3 chặn được thao tác hoàn vé bốc đồng mà không làm người dùng khó chịu quá mức.
+          </div>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <script>
+    // =========================================================
+    // 1. DETERMINISTIC MOCK DATA & DOMAIN FIXTURES (Track T3)
+    // =========================================================
+    const FIXTURES = {
+      pnr: 'TRV-7Q2K',
+      passengers: ['Nguyễn Minh An (34t)', 'Nguyễn Gia Bình (5t)'],
+      cancelledFlight: 'BM 213 · HN → TP.HCM · 12/11 19:00',
+      reason: 'Thời tiết (Bão) — miễn bồi thường tiền mặt, được đổi 0đ 1 lần (48h) hoặc hoàn 100%.',
+      flights: [
+        { code: 'BM 217', date: '12/11', time: '21:00', seats: 1, fit: false, note: 'Không đủ cho 2 hành khách' },
+        { code: 'BM 201', date: '13/11', time: '07:00', seats: 9, fit: true, note: 'Chuyến sớm nhất sáng mai' },
+        { code: 'BM 205', date: '13/11', time: '09:30', seats: 4, fit: true, note: 'Phù hợp đi cùng trẻ nhỏ' }
+      ]
+    };
+
+    const VARIANTS = {
+      A: {
+        name: 'Variant A — Suggestion-based (Chỉ đề xuất)',
+        rule: 'AI chỉ tra cứu, giải thích lý do và gợi ý phương án. Người dùng tự chọn, tự giữ chỗ và tự bấm đổi vé.',
+        matrix: [
+          ['tra_cuu_dat_cho', 'Tự làm', 'Chỉ đọc'],
+          ['giu_cho_chuyen_moi', 'Chỉ gợi ý', '20 phút'],
+          ['doi_chuyen_bay', 'Người tự bấm', 'Khó (1 lần)'],
+          ['gui_yeu_cau_hoan_ve', 'Người tự bấm + Gate', 'Không thể huỷ'],
+          ['chuyen_nhan_vien', 'Người tự bấm', 'Được']
+        ]
+      },
+      B: {
+        name: 'Variant B — Human-in-the-loop (Phối hợp)',
+        rule: 'AI tự tra cứu & giữ chỗ tạm 20 phút khi rõ ràng (đảo được), nhưng luôn cần khách duyệt trước khi xuất vé hoặc hoàn tiền.',
+        matrix: [
+          ['tra_cuu_dat_cho', 'Tự làm', 'Chỉ đọc'],
+          ['giu_cho_chuyen_moi', 'Tự làm (nếu rõ)', '20 phút'],
+          ['doi_chuyen_bay', 'Cần khách duyệt', 'Khó (1 lần)'],
+          ['gui_yeu_cau_hoan_ve', 'Cần duyệt + Gate', 'Không thể huỷ'],
+          ['chuyen_nhan_vien', 'Tự làm (khi lỗi)', 'Được']
+        ]
+      },
+      C: {
+        name: 'Variant C — Autonomous Agent (Tự chủ có giới hạn)',
+        rule: 'AI tự đổi vé ngay nếu yêu cầu đủ rõ, kèm thanh can thiệp. Tuy nhiên, VẪN PHẢI DỪNG hỏi nếu mơ hồ (#5) hoặc rủi ro không thể hoàn tác (#7).',
+        matrix: [
+          ['tra_cuu_dat_cho', 'Tự làm', 'Chỉ đọc'],
+          ['giu_cho_chuyen_moi', 'Tự làm', '20 phút'],
+          ['doi_chuyen_bay', 'Tự làm (nếu rõ)', 'Khó (1 lần)'],
+          ['gui_yeu_cau_hoan_ve', 'Dừng + Checkbox Gate', 'Không thể huỷ'],
+          ['chuyen_nhan_vien', 'Tự làm', 'Được']
+        ]
+      }
+    };
+
+    const SCENARIOS = {
+      1: {
+        tag: 'Kịch bản 1 · Normal Flow',
+        title: 'Yêu cầu đầy đủ & rõ ràng (Đổi sang BM 205 · 09:30)',
+        desc: 'Kiểm tra sự khác biệt về tốc độ và quyền kiểm soát giữa 3 Variant khi khách đã nêu rõ chuyến bay mong muốn.',
+        prompts: ['Đổi giúp hai mẹ con sang chuyến BM 205 lúc 09:30 sáng mai nhé.'],
+        steps: ['Nhận yêu cầu', 'Tra cứu PNR', 'Giữ chỗ 20p', 'Xác nhận / Xuất vé']
+      },
+      2: {
+        tag: 'Kịch bản 2 · Ambiguous Request (#5)',
+        title: 'Yêu cầu mơ hồ ("Đổi sang sáng mai nhé")',
+        desc: 'Sáng mai có 2 chuyến (07:00 và 09:30). Đánh giá xem AI có tự đoán bừa làm mất lần đổi miễn phí duy nhất hay biết dừng lại hỏi rõ.',
+        prompts: ['Chuyến bị huỷ rồi à? Vậy đổi giúp mình sang sáng mai nhé.'],
+        steps: ['Nhận yêu cầu', 'Phát hiện mơ hồ', 'Hỏi lại / Chọn chuyến', 'Xác nhận đổi vé']
+      },
+      3: {
+        tag: 'Kịch bản 3 · High-Impact Action (#7)',
+        title: 'Hành động rủi ro không thể đảo ngược ("Huỷ hết đi, hoàn tiền")',
+        desc: 'Khách bức xúc đòi hoàn vé. Kiểm tra chốt chặn Checkbox Gate ngăn thao tác giam tiền 90 ngày trên cả 3 Variant.',
+        prompts: ['Thôi huỷ hết đi, hoàn tiền cho mình.'],
+        steps: ['Nhận yêu cầu', 'Cảnh báo rủi ro', 'Checkbox Gate', 'Hoàn tất / Quay xe']
+      },
+      4: {
+        tag: 'Kịch bản 4 · Error & Recovery (#13)',
+        title: 'AI xử lý nhầm & Khôi phục ("Bạn đổi nhầm sang 09:30 rồi!")',
+        desc: 'Hệ thống vừa đổi nhầm sang BM 205 (09:30) thay vì 07:00. Kiểm tra khả năng nhận lỗi, chặn sửa sai tự động và bàn giao CSKH.',
+        prompts: ['Bạn vừa đổi tôi sang 09:30 rồi! Tôi chọn 07:00 mà.'],
+        steps: ['Phát hiện sai sót', 'Kiểm tra thực tế', 'Khoá thao tác bot', 'Bàn giao CSKH']
+      }
+    };
+
+    // =========================================================
+    // 2. STATE MANAGEMENT
+    // =========================================================
+    const state = {
+      variant: 'B',
+      scenario: 1,
+      stepIndex: 0,
+      selectedFlight: null,
+      heldFlight: null,
+      holdSeconds: 1200,
+      timerId: null,
+      bookingStatus: 'cancelled', // cancelled | held | rebooked | refunded | handoff
+      rebookedFlight: null,
+      freeQuota: '1/1',
+      interactions: 0,
+      interventions: 0,
+      startTime: Date.now(),
+      clockId: null,
+      logs: [],
+      feedbackRecords: []
+    };
+
+    // =========================================================
+    // 3. DOM REFERENCES & HELPERS
+    // =========================================================
+    const $ = id => document.getElementById(id);
+    const chatStream = $('chatStream');
+
+    function addLog(tool, detail) {
+      const time = new Date().toLocaleTimeString('vi-VN', { hour12: false });
+      state.logs.unshift({ time, tool, detail });
+      renderLogs();
+    }
+
+    function renderLogs() {
+      const ul = $('actionLog');
+      if (state.logs.length === 0) {
+        ul.innerHTML = '<li class="log-item" style="border-left-color:var(--border-strong);color:var(--ink-muted)">Chưa có tool nào được gọi.</li>';
+        return;
+      }
+      ul.innerHTML = state.logs.map(l =>
+        `<li class="log-item"><b>[${l.time}]</b> <code>${l.tool}</code><br>${l.detail}</li>`
+      ).join('');
+    }
+
+    function updateMetrics() {
+      const elapsed = Math.floor((Date.now() - state.startTime) / 1000);
+      $('metTime').textContent = elapsed + 's';
+      $('metSteps').textContent = state.interactions;
+      $('metIntervene').textContent = state.interventions;
+
+      const statusMap = {
+        cancelled: 'Đang chờ xử lý',
+        held: 'Đang giữ chỗ 20p',
+        rebooked: 'Hoàn tất (Đã đổi)',
+        refunded: 'Hoàn tất (Hoàn vé)',
+        handoff: 'Đã chuyển CSKH'
+      };
+      $('metStatus').textContent = statusMap[state.bookingStatus] || 'Đang chạy';
+    }
+
+    function updateBookingBadge() {
+      const b = $('bookingStatusBadge');
+      $('quotaVal').textContent = state.freeQuota;
+      b.className = 'status-badge';
+      if (state.bookingStatus === 'cancelled') {
+        b.classList.add('status-cancelled');
+        b.textContent = 'BM 213 ĐÃ HUỶ (Bão)';
+      } else if (state.bookingStatus === 'held') {
+        b.classList.add('status-hold');
+        b.textContent = `Đang giữ chỗ ${state.heldFlight}`;
+      } else if (state.bookingStatus === 'rebooked') {
+        b.classList.add('status-done');
+        b.textContent = `Đã xuất vé ${state.rebookedFlight}`;
+      } else if (state.bookingStatus === 'refunded') {
+        b.classList.add('status-cancelled');
+        b.textContent = 'Đã gửi yêu cầu hoàn vé';
+      } else if (state.bookingStatus === 'handoff') {
+        b.classList.add('status-handoff');
+        b.textContent = 'Đang kết nối Nhân viên CSKH';
+      }
+    }
+
+    function startHoldTimer(flightCode) {
+      stopHoldTimer();
+      state.heldFlight = flightCode;
+      state.holdSeconds = 1200;
+      state.bookingStatus = 'held';
+      $('holdTimerWrap').classList.remove('hidden');
+      updateBookingBadge();
+
+      state.timerId = setInterval(() => {
+        state.holdSeconds--;
+        const m = String(Math.floor(state.holdSeconds / 60)).padStart(2, '0');
+        const s = String(state.holdSeconds % 60).padStart(2, '0');
+        $('holdTimer').textContent = `${m}:${s}`;
+        if (state.holdSeconds <= 0) stopHoldTimer();
+      }, 1000);
+    }
+
+    function stopHoldTimer() {
+      if (state.timerId) clearInterval(state.timerId);
+      state.timerId = null;
+      $('holdTimerWrap').classList.add('hidden');
+    }
+
+    function renderStepper() {
+      const steps = SCENARIOS[state.scenario].steps;
+      $('stepper').innerHTML = steps.map((label, idx) => {
+        const cls = idx < state.stepIndex ? 'done' : (idx === state.stepIndex ? 'active' : '');
+        const dot = idx < state.stepIndex ? '✓' : (idx + 1);
+        const line = idx < steps.length - 1 ? '<div class="step-line"></div>' : '';
+        return `<div class="step-item ${cls}"><span class="step-dot">${dot}</span><span>${label}</span></div>${line}`;
+      }).join('');
+    }
+
+    function appendMessage(role, htmlContent) {
+      const div = document.createElement('div');
+      div.className = `msg ${role}`;
+      const meta = role === 'user'
+        ? '<div class="msg-meta">Hành khách (Bạn) · 15:02</div>'
+        : `<div class="msg-meta"><span class="ai-badge">AI Assistant</span> Variant ${state.variant} · Chỉ hiển thị dữ liệu thật từ PNR</div>`;
+      div.innerHTML = `${meta}<div class="bubble">${htmlContent}</div>`;
+      chatStream.appendChild(div);
+      chatStream.scrollTop = chatStream.scrollHeight;
+    }
+
+    // =========================================================
+    // 4. DETERMINISTIC SIMULATION ENGINE PER VARIANT & SCENARIO
+    // =========================================================
+    function handleUserMessage(text) {
+      if (!text.trim()) return;
+      state.interactions++;
+      updateMetrics();
+      appendMessage('user', escapeHtml(text));
+
+      const lower = text.toLowerCase();
+
+      // Route based on intent/scenario
+      setTimeout(() => {
+        if (lower.includes('nhầm') || lower.includes('09:30 rồi') || (state.scenario === 4 && state.stepIndex === 0)) {
+          runErrorRecoveryFlow();
+        } else if (lower.includes('huỷ') || lower.includes('hoàn tiền') || lower.includes('hủy')) {
+          runHighImpactRefundFlow();
+        } else if (lower.includes('bm 205') || lower.includes('09:30')) {
+          runClearFlightFlow('BM 205');
+        } else if (lower.includes('bm 201') || lower.includes('07:00')) {
+          runClearFlightFlow('BM 201');
+        } else if (lower.includes('sáng mai') || lower.includes('đổi')) {
+          runAmbiguousFlow();
+        } else {
+          // Default fallback explanation
+          appendMessage('ai', `
+            Mình đã tra cứu đặt chỗ <b>TRV-7Q2K</b> (Nguyễn Minh An & bé Gia Bình 5t). Chuyến BM 213 bị huỷ do bão.<br>
+            Bạn muốn đổi sang <b>BM 201 (07:00 sáng mai)</b>, <b>BM 205 (09:30 sáng mai)</b>, hay cần hỗ trợ hoàn vé?
+          `);
+        }
+      }, 280);
+    }
+
+    // SCENARIO 1: Clear Request (e.g., BM 205 · 09:30)
+    function runClearFlightFlow(flightCode) {
+      const fl = FIXTURES.flights.find(f => f.code === flightCode) || FIXTURES.flights[2];
+      state.selectedFlight = fl.code;
+      addLog('tra_cuu_dat_cho', `PNR TRV-7Q2K · 2 hành khách · ${fl.code} còn ${fl.seats} chỗ.`);
+
+      if (state.variant === 'A') {
+        state.stepIndex = 2;
+        renderStepper();
+        appendMessage('ai', `
+          Mình đã kiểm tra đặt chỗ <b>TRV-7Q2K</b>. Chuyến <b>${fl.code} (${fl.date} ${fl.time})</b> hiện còn <b>${fl.seats} chỗ</b>, đủ cho 2 mẹ con và được áp dụng <b>đổi miễn phí 0đ</b>.<br>
+          <div class="decision-box">
+            <div class="decision-header">
+              <span>Đề xuất hành động (Bạn tự thực hiện)</span>
+              <span class="rev-tag rev-yes">Chưa tác động lên vé</span>
+            </div>
+            <div>Ở chế độ <b>Variant A</b>, AI không tự giữ chỗ hay đổi vé thay bạn. Bạn có thể bấm nút bên dưới để tự giữ chỗ 20 phút trước khi xác nhận.</div>
+            <div class="why-grid">
+              <div class="why-item"><strong>Dữ liệu sử dụng</strong>TRV-7Q2K (2 khách), ${fl.code} (${fl.seats} chỗ)</div>
+              <div class="why-item"><strong>Ảnh hưởng</strong>Chưa trừ lần đổi miễn phí duy nhất</div>
+            </div>
+            <div class="action-row">
+              <button class="btn btn-primary" onclick="userManualHold('${fl.code}')">1. Tự giữ chỗ ${fl.code} (20 phút)</button>
+              <button class="btn" onclick="handoffCSKH('Khách muốn nhân viên hỗ trợ trực tiếp')">Chuyển nhân viên</button>
+            </div>
+          </div>
+        `);
+      } else if (state.variant === 'B') {
+        addLog('giu_cho_chuyen_moi', `Tự động giữ chỗ tạm thời ${fl.code} trong 20 phút (an toàn, đảo được).`);
+        startHoldTimer(fl.code);
+        state.stepIndex = 3;
+        renderStepper();
+        appendMessage('ai', `
+          Mình đã kiểm tra đặt chỗ <b>TRV-7Q2K</b> và <b>giữ chỗ tạm thời 20 phút</b> cho cả 2 mẹ con trên chuyến <b>${fl.code} (${fl.date} ${fl.time})</b>.<br>
+          <div class="decision-box warn">
+            <div class="decision-header">
+              <span>Chờ bạn duyệt: Xuất vé đổi sang ${fl.code}</span>
+              <span class="rev-tag rev-hard">Dùng 1/1 lần đổi miễn phí</span>
+            </div>
+            <div><b>Chi phí:</b> 0đ (áp dụng chính sách huỷ do bão). <b>Lưu ý:</b> Sau khi xuất vé sẽ dùng hết quyền đổi miễn phí duy nhất trong 48h.</div>
+            <div class="why-grid">
+              <div class="why-item"><strong>AI đã tự làm</strong>Tra cứu & Giữ chỗ 20p (đảo được)</div>
+              <div class="why-item"><strong>Cần bạn quyết định</strong>Bấm xuất vé hoặc đổi sang chuyến 07:00</div>
+            </div>
+            <div class="action-row">
+              <button class="btn btn-emerald" onclick="confirmRebook('${fl.code}')">✓ Xác nhận đổi sang ${fl.code} (0đ)</button>
+              <button class="btn" onclick="switchFlightChoice()">Đổi ý, chọn chuyến khác</button>
+              <button class="btn btn-ghost" onclick="cancelHold()">Huỷ giữ chỗ</button>
+            </div>
+          </div>
+        `);
+      } else if (state.variant === 'C') {
+        addLog('giu_cho_chuyen_moi', `Tự giữ chỗ ${fl.code}.`);
+        addLog('doi_chuyen_bay', `Tự động xuất vé ${fl.code} cho 2 khách (Yêu cầu đầu vào rõ ràng).`);
+        stopHoldTimer();
+        state.bookingStatus = 'rebooked';
+        state.rebookedFlight = fl.code;
+        state.freeQuota = '0/1';
+        state.stepIndex = 3;
+        renderStepper();
+        updateBookingBadge();
+        updateMetrics();
+
+        appendMessage('ai', `
+          Mình đã hoàn tất đổi vé đặt chỗ <b>TRV-7Q2K</b> sang chuyến <b>${fl.code} (${fl.date} ${fl.time})</b> cho <b>Nguyễn Minh An</b> và <b>Nguyễn Gia Bình (5t)</b> với phí <b>0đ</b>.<br>
+          <div class="decision-box success">
+            <div class="decision-header">
+              <span>Đã thực hiện: doi_chuyen_bay (${fl.code})</span>
+              <span class="rev-tag rev-hard">Đã dùng 1/1 lần đổi miễn phí</span>
+            </div>
+            <div>Vì bạn đã nêu rõ mã chuyến bay và giờ bay, hệ thống tự động xuất vé ngay để tránh hết chỗ trong bão.</div>
+            <div class="why-grid">
+              <div class="why-item"><strong>Nếu có sai sót?</strong>Không thể tự hoàn tác miễn phí trên app</div>
+              <div class="why-item"><strong>Quyền can thiệp</strong>Báo đổi nhầm để kết nối CSKH ngay</div>
+            </div>
+            <div class="action-row">
+              <button class="btn btn-danger" onclick="reportWrongRebook('${fl.code}')">⚠ Báo đổi nhầm / Yêu cầu sửa</button>
+              <button class="btn" onclick="handoffCSKH('Khách yêu cầu kiểm tra lại vé sau khi AI tự đổi')">Gặp nhân viên CSKH</button>
+            </div>
+          </div>
+        `);
+      }
+    }
+
+    // SCENARIO 2: Ambiguous Request (#5)
+    function runAmbiguousFlow() {
+      addLog('tra_cuu_dat_cho', 'Phát hiện yêu cầu mơ hồ ("sáng mai" khớp cả BM 201 07:00 và BM 205 09:30). Loại BM 217 (chỉ còn 1 chỗ).');
+      state.stepIndex = 1;
+      renderStepper();
+
+      const msgIntro = state.variant === 'C'
+        ? `Dù ở chế độ <b>Variant C (Tự chủ)</b>, hệ thống <b>dừng lại hỏi rõ</b> vì "sáng mai" có tới 2 chuyến đủ 2 chỗ và thao tác đổi vé chỉ được miễn phí 1 lần duy nhất.`
+        : `Mình đã kiểm tra đặt chỗ <b>TRV-7Q2K</b> (2 hành khách). Chuyến tối nay BM 217 chỉ còn 1 chỗ nên không đủ cho hai mẹ con. Sáng mai (13/11) có <b>2 chuyến đủ chỗ</b>:`;
+
+      appendMessage('ai', `
+        ${msgIntro}
+        <div class="flight-options">
+          <div class="flight-card">
+            <div class="flight-code"><span>BM 201 · 07:00</span><span class="status-badge status-done">Còn 9 chỗ</span></div>
+            <div class="flight-meta">13/11 · Chuyến sớm nhất sáng mai</div>
+            <button class="btn btn-primary" style="width:100%" onclick="runClearFlightFlow('BM 201')">Chọn BM 201 (07:00)</button>
+          </div>
+          <div class="flight-card">
+            <div class="flight-code"><span>BM 205 · 09:30</span><span class="status-badge status-done">Còn 4 chỗ</span></div>
+            <div class="flight-meta">13/11 · Thoải mái hơn cho bé 5t</div>
+            <button class="btn btn-primary" style="width:100%" onclick="runClearFlightFlow('BM 205')">Chọn BM 205 (09:30)</button>
+          </div>
+        </div>
+        <div class="decision-box">
+          <div class="decision-header">
+            <span>Tại sao AI chưa giữ chỗ hoặc đổi vé ngay?</span>
+            <span class="rev-tag rev-yes">An toàn · Chưa trừ quyền lợi</span>
+          </div>
+          <div>Bạn đi cùng bé 5 tuổi nên 07:00 có thể quá sớm. AI trình bày cả 2 lựa chọn thực tế từ <code>tra_cuu_dat_cho</code> để bạn chọn chính xác trước khi kích hoạt giữ chỗ.</div>
+          <div class="action-row">
+            <button class="btn" onclick="handoffCSKH('Khách cần tư vấn thêm khi chọn giờ bay')">Gặp nhân viên hỗ trợ</button>
+          </div>
+        </div>
+      `);
+    }
+
+    // SCENARIO 3: High-Impact Action — Refund (#7)
+    function runHighImpactRefundFlow() {
+      addLog('tra_cuu_dat_cho', 'Nhận diện ý định hoàn vé (không thể huỷ). Kích hoạt Confirmation Gate.');
+      state.stepIndex = 2;
+      renderStepper();
+
+      const gateId = 'gate_' + Date.now();
+      const btnId = 'btnRefund_' + Date.now();
+
+      appendMessage('ai', `
+        Mình hiểu bạn đang rất sốt ruột khi chuyến bay bị huỷ do bão. Tuy nhiên, hệ thống <b>đã chặn lệnh hoàn vé tự động</b> (áp dụng cho cả Variant A, B và C) vì thao tác này <b>không thể đảo ngược</b>.<br>
+        <div class="decision-box danger">
+          <div class="decision-header">
+            <span>⚠ Cảnh báo tác động tài chính nghiêm trọng</span>
+            <span class="rev-tag rev-no">KHÔNG THỂ HUỶ SAU KHI GỬI</span>
+          </div>
+          <ul style="margin:6px 0 8px; padding-left:18px;">
+            <li>Yêu cầu hoàn vé gửi lên hãng sẽ <b>không thể rút lại</b>.</li>
+            <li>Tiền hoàn về thẻ ban đầu trong <b>14–90 ngày</b> (không có bồi thường tiền mặt do bão).</li>
+            <li>Bạn sẽ <b>mất quyền đổi miễn phí</b> sang chuyến sáng mai (BM 201 · 07:00 và BM 205 · 09:30 vẫn còn chỗ).</li>
+          </ul>
+          <div class="action-row" style="margin-bottom:10px">
+            <button class="btn btn-emerald" onclick="runAmbiguousFlow()">← Xem chuyến đổi miễn phí sáng mai (Khuyên dùng)</button>
+            <button class="btn" onclick="handoffCSKH('Khách cần tư vấn hoàn vé vs đổi chuyến')">Gặp nhân viên CSKH</button>
+          </div>
+          <div class="gate-box">
+            <label class="gate-check">
+              <input type="checkbox" id="${gateId}" onchange="document.getElementById('${btnId}').disabled = !this.checked">
+              <span>Tôi hiểu yêu cầu hoàn vé một khi gửi sẽ KHÔNG THỂ HUỶ và thời gian hoàn tiền có thể tới 90 ngày.</span>
+            </label>
+            <div class="action-row">
+              <button class="btn btn-danger" id="${btnId}" disabled onclick="confirmRefund()">Xác nhận gửi yêu cầu hoàn vé</button>
+            </div>
+          </div>
+        </div>
+      `);
+    }
+
+    // SCENARIO 4: Error & Recovery (#13)
+    function runErrorRecoveryFlow() {
+      state.interventions++;
+      state.stepIndex = 2;
+      renderStepper();
+      updateMetrics();
+      addLog('tra_cuu_dat_cho', 'Kiểm tra sự cố đổi nhầm: PNR TRV-7Q2K đã xuất BM 205 (09:30), hết quyền đổi miễn phí.');
+
+      appendMessage('ai', `
+        Mình thành thật xin lỗi — mình đã kiểm tra lại trạng thái thực tế của đặt chỗ <b>TRV-7Q2K</b>: hệ thống ghi nhận vé hiện tại đang ở chuyến <b>BM 205 (09:30)</b> và lượt đổi miễn phí 48h đã được sử dụng.<br>
+        <div class="decision-box danger">
+          <div class="decision-header">
+            <span>Khoá thao tác tự động · Chuyển xử lý sự cố</span>
+            <span class="rev-tag rev-no">Không tự gọi doi_chuyen_bay lần 2</span>
+          </div>
+          <div><b>Vì sao AI không có nút "Hoàn tác" tự động?</b> Theo quy định hàng không, thao tác đổi lại sang 07:00 lúc này có thể phát sinh phí đổi vé mới hoặc làm mất chỗ nếu làm sai. Hệ thống giữ nguyên trạng thái để nhân viên xử lý miễn phí cho bạn.</div>
+          <div class="why-grid">
+            <div class="why-item"><strong>Bằng chứng đính kèm</strong>Lịch sử xác nhận + Log đổi sang 09:30</div>
+            <div class="why-item"><strong>Chuyến khách muốn</strong>BM 201 (07:00 · còn 9 chỗ)</div>
+          </div>
+          <div class="action-row">
+            <button class="btn btn-primary" onclick="handoffCSKH('Lỗi đổi nhầm sang 09:30, khách chọn 07:00 — kèm audit log')">Chuyển ngay cho Nhân viên CSKH (0 giây chờ)</button>
+          </div>
+        </div>
+      `);
+    }
+
+    // =========================================================
+    // 5. USER ACTION HANDLERS (BUTTONS INSIDE CHAT)
+    // =========================================================
+    window.userManualHold = function(flightCode) {
+      state.interactions++;
+      state.stepIndex = 2;
+      renderStepper();
+      addLog('giu_cho_chuyen_moi', `Người dùng chủ động bấm giữ chỗ ${flightCode} (20 phút).`);
+      startHoldTimer(flightCode);
+      updateMetrics();
+
+      appendMessage('ai', `
+        Bạn đã giữ chỗ thành công chuyến <b>${flightCode}</b> trong <b>20 phút</b>.<br>
+        <div class="decision-box warn">
+          <div class="decision-header"><span>Bước cuối: Xuất vé chính thức</span><span class="rev-tag rev-hard">Dùng 1/1 lần đổi miễn phí</span></div>
+          <div class="action-row">
+            <button class="btn btn-emerald" onclick="confirmRebook('${flightCode}')">✓ Xác nhận đổi sang ${flightCode} (0đ)</button>
+            <button class="btn btn-ghost" onclick="cancelHold()">Huỷ giữ chỗ</button>
+          </div>
+        </div>
+      `);
+    };
+
+    window.confirmRebook = function(flightCode) {
+      state.interactions++;
+      addLog('doi_chuyen_bay', `Người dùng đã duyệt. Xuất vé ${flightCode} thành công (0đ).`);
+      stopHoldTimer();
+      state.bookingStatus = 'rebooked';
+      state.rebookedFlight = flightCode;
+      state.freeQuota = '0/1';
+      state.stepIndex = 3;
+      renderStepper();
+      updateBookingBadge();
+      updateMetrics();
+
+      appendMessage('ai', `
+        <div class="decision-box success" style="margin-top:0">
+          <div class="decision-header"><span>✓ Đổi chuyến bay thành công!</span><span class="rev-tag rev-yes">Vé mới đã xuất</span></div>
+          <div>Đặt chỗ <b>TRV-7Q2K</b> đã chuyển sang <b>${flightCode} (13/11)</b> cho cả <b>Nguyễn Minh An</b> và <b>Nguyễn Gia Bình (5t)</b>. Chi phí: <b>0đ</b>.</div>
+          <div style="margin-top:8px; font-size:12px; color:var(--ink-secondary)">👉 Bạn có thể chuyển sang tab <b>1. Phản hồi UX</b> ở bên phải để đánh giá trải nghiệm!</div>
+        </div>
+      `);
+    };
+
+    window.switchFlightChoice = function() {
+      state.interventions++;
+      updateMetrics();
+      runAmbiguousFlow();
+    };
+
+    window.cancelHold = function() {
+      state.interventions++;
+      stopHoldTimer();
+      state.bookingStatus = 'cancelled';
+      state.stepIndex = 1;
+      renderStepper();
+      updateBookingBadge();
+      updateMetrics();
+      addLog('huy_giu_cho', 'Người dùng huỷ giữ chỗ tạm thời. Quyền đổi miễn phí 1/1 được bảo toàn.');
+      appendMessage('ai', 'Đã huỷ giữ chỗ tạm thời. Đặt chỗ <b>TRV-7Q2K</b> vẫn giữ nguyên quyền đổi miễn phí <b>1/1</b> để bạn chọn lại.');
+    };
+
+    window.confirmRefund = function() {
+      state.interactions++;
+      stopHoldTimer();
+      state.bookingStatus = 'refunded';
+      state.freeQuota = '0/1';
+      state.stepIndex = 3;
+      renderStepper();
+      updateBookingBadge();
+      updateMetrics();
+      addLog('gui_yeu_cau_hoan_ve', 'Người dùng đã tick Checkbox Gate và gửi yêu cầu hoàn vé.');
+
+      appendMessage('ai', `
+        <div class="decision-box danger" style="margin-top:0">
+          <div class="decision-header"><span>Đã gửi yêu cầu hoàn vé</span><span class="rev-tag rev-no">Không thể huỷ</span></div>
+          <div>Yêu cầu hoàn tiền cho <b>TRV-7Q2K</b> đã được ghi nhận. Tiền sẽ hoàn về phương thức thanh toán ban đầu trong <b>14–90 ngày</b>.</div>
+          <div class="action-row">
+            <button class="btn" onclick="handoffCSKH('Khách vừa gửi yêu cầu hoàn vé nhưng cần hỗ trợ thêm')">Gặp nhân viên CSKH</button>
+          </div>
+        </div>
+      `);
+    };
+
+    window.reportWrongRebook = function(wrongFlight) {
+      state.interventions++;
+      state.scenario = 4;
+      document.querySelectorAll('.scenario-pill').forEach(p => p.classList.toggle('active', Number(p.dataset.scenario) === 4));
+      loadScenarioHeader();
+      appendMessage('user', `Bạn vừa đổi tôi sang ${wrongFlight} rồi! Tôi muốn chọn chuyến khác mà.`);
+      setTimeout(() => runErrorRecoveryFlow(), 250);
+    };
+
+    window.handoffCSKH = function(reason) {
+      state.interactions++;
+      state.interventions++;
+      stopHoldTimer();
+      state.bookingStatus = 'handoff';
+      state.stepIndex = 3;
+      renderStepper();
+      updateBookingBadge();
+      updateMetrics();
+      addLog('chuyen_nhan_vien', `Bàn giao CSKH ngay lập tức. Lý do: ${reason}`);
+
+      appendMessage('ai', `
+        <div class="decision-box" style="margin-top:0; background:var(--sky-soft); border-color:#bae6fd">
+          <div class="decision-header"><span>🎧 Đã kết nối Nhân viên Hỗ trợ (0 giây chờ)</span><span class="rev-tag rev-yes">Đã gửi kèm Audit Log</span></div>
+          <div>Toàn bộ lịch sử hội thoại, mã đặt chỗ <b>TRV-7Q2K</b> và lý do (<i>${escapeHtml(reason)}</i>) đã được chuyển tới nhân viên trực ca để xử lý ngay cho bạn.</div>
+        </div>
+      `);
+    };
+
+    function escapeHtml(str) {
+      return str.replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+    }
+
+    // =========================================================
+    // 6. UI INITIALIZATION & EVENT BINDINGS
+    // =========================================================
+    function loadScenarioHeader() {
+      const sc = SCENARIOS[state.scenario];
+      $('scenarioTag').textContent = sc.tag;
+      $('scenarioTitle').textContent = sc.title;
+      $('scenarioDesc').textContent = sc.desc;
+      $('quickPrompts').innerHTML = sc.prompts.map(p =>
+        `<button class="chip-btn" onclick="sendQuick('${p.replace(/'/g, "\\'")}')">💬 "${p}"</button>`
+      ).join('');
+      renderStepper();
+    }
+
+    window.sendQuick = function(text) {
+      handleUserMessage(text);
+    };
+
+    function renderVariantInfo() {
+      const v = VARIANTS[state.variant];
+      $('variantLabel').textContent = v.name + ':';
+      $('variantRule').textContent = v.rule;
+      document.querySelectorAll('.fb-var').forEach(el => el.textContent = state.variant);
+      $('toolMatrixBody').innerHTML = v.matrix.map(r =>
+        `<tr><td><code>${r[0]}</code></td><td><b>${r[1]}</b></td><td>${r[2]}</td></tr>`
+      ).join('');
+    }
+
+    function resetSimulation() {
+      stopHoldTimer();
+      state.stepIndex = 0;
+      state.selectedFlight = null;
+      state.heldFlight = null;
+      state.bookingStatus = state.scenario === 4 ? 'rebooked' : 'cancelled';
+      state.rebookedFlight = state.scenario === 4 ? 'BM 205' : null;
+      state.freeQuota = state.scenario === 4 ? '0/1' : '1/1';
+      state.interactions = 0;
+      state.interventions = 0;
+      state.startTime = Date.now();
+      state.logs = [];
+      $('fbSavedNotice').classList.add('hidden');
+
+      loadScenarioHeader();
+      renderVariantInfo();
+      updateBookingBadge();
+      renderLogs();
+      updateMetrics();
+
+      chatStream.innerHTML = '';
+      if (state.scenario === 4) {
+        appendMessage('ai', `
+          <i>[Bối cảnh giả lập lỗi]: Hệ thống vừa tự động đổi đặt chỗ <b>TRV-7Q2K</b> sang <b>BM 205 (09:30)</b>, nhưng bạn thực ra muốn đi chuyến <b>07:00</b>. Hãy bấm tin nhắn gợi ý bên dưới để kiểm tra cơ chế khôi phục.</i>
+        `);
+      } else {
+        appendMessage('ai', `
+          Xin chào! Mình là <b>Trợ lý AI</b> hỗ trợ đặt chỗ <b>TRV-7Q2K</b>.<br>
+          Chuyến <b>BM 213 (19:00 hôm nay)</b> của hai mẹ con vừa bị huỷ do bão. Hãy nhắn yêu cầu của bạn hoặc bấm tin nhắn mẫu phía dưới để bắt đầu thử nghiệm.
+        `);
+      }
+    }
+
+    // Bind Variant Buttons
+    document.querySelectorAll('[data-variant]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('[data-variant]').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        state.variant = btn.dataset.variant;
+        resetSimulation();
+      });
+    });
+
+    // Bind Scenario Pills
+    document.querySelectorAll('[data-scenario]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('[data-scenario]').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        state.scenario = Number(btn.dataset.scenario);
+        resetSimulation();
+      });
+    });
+
+    $('btnReset').addEventListener('click', resetSimulation);
+
+    $('btnNextScenario').addEventListener('click', () => {
+      const next = state.scenario >= 4 ? 1 : state.scenario + 1;
+      document.querySelector(`[data-scenario="${next}"]`).click();
+    });
+
+    $('btnToggleResearch').addEventListener('click', () => {
+      const ws = $('workspace');
+      const rp = $('researchPanel');
+      const hidden = rp.classList.toggle('hidden');
+      ws.classList.toggle('research-hidden', hidden);
+      $('btnToggleResearch').textContent = hidden ? 'Hiện bảng nghiên cứu' : 'Ẩn bảng nghiên cứu';
+    });
+
+    // Bind Chat Input
+    $('btnSend').addEventListener('click', () => {
+      const val = $('chatInput').value;
+      $('chatInput').value = '';
+      handleUserMessage(val);
+    });
+
+    $('chatInput').addEventListener('keydown', e => {
+      if (e.key === 'Enter') $('btnSend').click();
+    });
+
+    // Bind Side Panel Tabs
+    document.querySelectorAll('.tab-btn').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+        tab.classList.add('active');
+        $('tab-' + tab.dataset.tab).classList.add('active');
+      });
+    });
+
+    // Bind Feedback Form
+    $('feedbackForm').addEventListener('submit', e => {
+      e.preventDefault();
+      const data = new FormData(e.target);
+      const record = {
+        variant: state.variant,
+        scenario: state.scenario,
+        understand: data.get('understand'),
+        trust: data.get('trust'),
+        control: data.get('control'),
+        satisfaction: data.get('satisfaction'),
+        comment: $('fbComment').value.trim(),
+        elapsed: $('metTime').textContent
+      };
+      state.feedbackRecords.unshift(record);
+      $('savedCount').textContent = state.feedbackRecords.length;
+      $('savedFeedbackList').innerHTML = state.feedbackRecords.map(r => `
+        <li class="log-item">
+          <b>Variant ${r.variant} · KB ${r.scenario}</b> (${r.elapsed})<br>
+          Hiểu: ${r.understand}/5 · Tin: ${r.trust}/5 · Kiểm soát: ${r.control}/5 · Hài lòng: ${r.satisfaction}/5
+          ${r.comment ? `<br><i>"${escapeHtml(r.comment)}"</i>` : ''}
+        </li>
+      `).join('');
+
+      $('fbSavedNotice').classList.remove('hidden');
+      e.target.reset();
+    });
+
+    // Elapsed clock
+    state.clockId = setInterval(updateMetrics, 1000);
+
+    // Boot
+    resetSimulation();
+  </script>
+</body>
+</html>
