@@ -117,6 +117,48 @@ try:
     assert evaluate('document.querySelector("[data-tool=gui_yeu_cau_hoan_ve]").classList.contains("tool-recent")')
     scenario('child')
     assert evaluate('state.view') == 'support'
+    # Stage 6 acceptance: apply the same 3 criteria to both highest-cost cases.
+    def tool_count(name):
+        return evaluate('state.logs.filter(x=>x.tool==='+json.dumps(name)+').length')
+    scenario('ambiguous')
+    evaluate('document.getElementById("message").value="Ừ, đổi đi";document.getElementById("chat-form").requestSubmit()')
+    assert evaluate('state.selected') is None
+    assert tool_count('doi_chuyen_bay') == tool_count('gui_yeu_cau_hoan_ve') == 0
+    click('[data-flight="BM 205"]')
+    text = evaluate('document.querySelector(".confirm-card").textContent')
+    assert all(x in text for x in ['BM 205','13/11/2026','09:30','Nguyễn Minh An','Nguyễn Gia Bình','0đ','lần đổi miễn phí duy nhất'])
+    assert 'Chưa đổi vé' in evaluate('document.querySelector(".hold-banner").textContent')
+    click('[data-action="cancel"]')
+    assert evaluate('state.deadline') is None
+    assert tool_count('doi_chuyen_bay') == 0
+    click('[data-flight="BM 205"]')
+    click('[data-action="confirm-change"]')
+    assert tool_count('doi_chuyen_bay') == 1
+    assert evaluate('document.querySelector("[data-action=confirm-change]")===null')
+    click('[data-action="report-error"]')
+    assert evaluate('state.view') == 'support'
+    assert tool_count('doi_chuyen_bay') == 1
+    print('ACCEPTANCE #5: C1 PASS (explicit approval); C2 PASS (context and consequences); C3 PASS (cancel, single outcome, escalation).')
+    scenario('refund')
+    text = evaluate('document.querySelector(".refund-warning").textContent')
+    assert all(x in text for x in ['TRV-7Q2K','Nguyễn Minh An','Nguyễn Gia Bình','không thể huỷ','phương thức thanh toán ban đầu','90 ngày','mất chỗ','quyền đổi miễn phí'])
+    evaluate('document.getElementById("message").value="Đồng ý";document.getElementById("chat-form").requestSubmit()')
+    assert tool_count('gui_yeu_cau_hoan_ve') == 0
+    click('#refund-consent')
+    assert tool_count('gui_yeu_cau_hoan_ve') == 0
+    click('[data-action="options"]')
+    assert tool_count('gui_yeu_cau_hoan_ve') == 0
+    click('[data-action="refund"]')
+    assert not evaluate('document.getElementById("refund-consent").checked')
+    assert evaluate('document.querySelector("[data-action=confirm-refund]").disabled')
+    click('#refund-consent')
+    click('[data-action="confirm-refund"]')
+    assert tool_count('gui_yeu_cau_hoan_ve') == 1
+    assert evaluate('document.querySelector("[data-action=confirm-refund]")===null')
+    click('[data-action="support"]')
+    assert evaluate('state.view') == 'support'
+    assert tool_count('gui_yeu_cau_hoan_ve') == 1 and tool_count('doi_chuyen_bay') == 0
+    print('ACCEPTANCE #7: C1 PASS (checkbox AND submit); C2 PASS (context and consequences); C3 PASS (back, consent reset, single outcome, escalation).')
     send('Emulation.setDeviceMetricsOverride', {'width':390,'height':844,'deviceScaleFactor':1,'mobile':True})
     for value in ['family','normal','refund','child']:
         scenario(value)

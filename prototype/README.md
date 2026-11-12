@@ -58,6 +58,8 @@ Các số trên màn hình và ảnh:
 
 ## Kiểm tra
 
+Bộ **3 tiêu chí nghiệm thu chặng 6**, bảng kết quả trên hai ca đắt nhất #5/#7 và lỗi còn lại nằm ở [§6 trong spec.md](../spec.md#6-tốt-là-gì-chặng-6). Kiểm tra trình duyệt in hai dòng `ACCEPTANCE #5` / `ACCEPTANCE #7`, mỗi dòng có C1/C2/C3. Kết quả chỉ xác nhận luồng mô phỏng đã thử, không phải khả năng phát hành thật.
+
 ```text
 node prototype/verify.cjs
 python prototype/verify-browser.py
